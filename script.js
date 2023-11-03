@@ -4,7 +4,7 @@
 
 //              pyramide
 let vert = [-1,-1,-1, -1,3,-1, 3,3,-1, 3,-1,-1, 1,1,3, 1,1,-5];
-let tri = [0,1,2, 0,2,3, 0,1,4, 1,2,4, 2,3,4, 3,0,4, 0,1,5, 1,2,5, 2,3,5, 3,0,5,];
+let tri = [0,1,4, 1,2,4, 2,3,4, 3,0,4, 0,1,5, 1,2,5, 2,3,5, 3,0,5,]; // 0,1,2, 0,2,3,
 let angleX = 0;
 let angleY = 0;
 let angleZ = 0;
@@ -47,6 +47,56 @@ document.body.addEventListener('keydown', function(e) {
     pauseActivate(e.key)});
 document.body.addEventListener('keyup', function(e) {
     updateKeys(e.key, false);});
+document.getElementById("file_drop").addEventListener("change", dropHandler);
+document.body.addEventListener("drag", dropHandler);
+
+
+
+function dropHandler(ev) {
+    console.log("File(s) dropped");
+  
+    // Prevent default behavior (Prevent file from being opened)
+    ev.preventDefault();
+    ev.stopPropagation();
+  console.log(ev.target.files);
+    if (ev.target.files) {
+      // Use DataTransferItemList interface to access the file(s)
+      [...ev.target.files].forEach((item, i) => {
+        // If dropped items aren't files, reject them
+          const file = item;
+          console.log(`… file[${i}].name = ${file.name}`);
+          let promise = file.text();
+          promise.then((response)=>{
+            changeObject(response);
+          });
+        });
+    }
+}
+
+function changeObject(response){
+    //vertices
+    let regex = new RegExp("v (-?\\d*\\.\\d*) (-?\\d*\\.\\d*) (-?\\d*\\.\\d*)", "g");
+    let data = response.matchAll(regex)
+    vert = [];
+    for (const trio of data){
+        console.log(trio);
+        vert.push(...trio.slice(1).map(x=>parseFloat(x)));
+    }
+    console.log(vert);
+
+    //triangles
+    regex = new RegExp("f (\\d*)/\\d*/\\d* (\\d*)/\\d*/\\d* (\\d*)/\\d*/\\d*", "g");
+    data = response.matchAll(regex);
+    tri = [];
+    for (const trio of data){
+        console.log(trio);
+        tri.push(...trio.slice(1).map(x=>parseFloat(x)-1));
+    }
+    console.log(tri);
+}
+
+// "# Blender 3.6.5\n# www.blender.org\nmtllib untitled.mtl\no Cube\nv 1.000000 1.000000 -1.000000\nv 1.000000 -1.000000 -1.000000\nv 1.000000 1.000000 1.000000\nv 1.000000 -1.000000 1.000000\nv -1.000000 1.000000 -1.000000\nv -1.000000 -1.000000 -1.000000\nv -1.000000 1.000000 1.000000\nv -1.000000 -1.000000 1.000000\nvn -0.0000 1.0000 -0.0000\nvn -0.0000 -0.0000 1.0000\nvn -1.0000 -0.0000 -0.0000\nvn -0.0000 -1.0000 -0.0000\nvn 1.0000 -0.0000 -0.0000\nvn -0.0000 -0.0000 -1.0000\nvt 0.625000 0.500000\nvt 0.875000 0.500000\nvt 0.875000 0.750000\nvt 0.625000 0.750000\nvt 0.375000 0.750000\nvt 0.625000 1.000000\nvt 0.375000 1.000000\nvt 0.375000 0.000000\nvt 0.625000 0.000000\nvt 0.625000 0.250000\nvt 0.375000 0.250000\nvt 0.125000 0.500000\nvt 0.375000 0.500000\nvt 0.125000 0.750000\ns 0\nusemtl Material\nf 1/1/1 5/2/1 7/3/1 3/4/1\nf 4/5/2 3/4/2 7/6/2 8/7/2\nf 8/8/3 7/9/3 5/10/3 6/11/3\nf 6/12/4 2/13/4 4/5/4 8/14/4\nf 2/13/5 1/1/5 3/4/5 4/5/5\nf 6/11/6 5/10/6 1/1/6 2/13/6\n"
+
 
 let left = false, up = false, right = false, down = false, counterClock = false, clock = false;
 
@@ -184,11 +234,16 @@ function zBufferUpdate(vert, tri){
         let b = vertexShader(vert[p1], vert[p1+1], vert[p1+2], m);  
         let c = vertexShader(vert[p2], vert[p2+1], vert[p2+2], m);
         let z = Math.min(a[2], b[2], c[2]);
+        let zMoy = [a[2],b[2],c[2]].reduce((x,y)=>x+y)/3;
+        // console.log(zMoy);
         // console.log(a,b,c);
         triCalc.push([a,b,c])
-        zBuffer.push([i/3,z])
+        zBuffer.push([i/3,z, zMoy])
     }
-    zBuffer.sort((a,b) => (b[1] - a[1]));
+    zBuffer.sort((a,b) => {
+        let diff = b[1] - a[1];
+        if (diff!=0) return b[1] - a[1]
+        return  b[2] - a[2];});
     // console.log(zBuffer);
 }
 
