@@ -24,7 +24,7 @@ let none = [1,0,0,0, 0,1,0,0, 0,0,1,dist];
 // │ sy -cy*sx  cy*cx 0 │
 // │ 0   0      0     1 │
 // └                    ┘
-
+let pX = 0, pY = 0, pZ = 10;
 
 var colorArray = ['#FF6633', '#FFB399', '#FF33FF', '#FFFF99', '#00B3E6', 
 		  '#E6B333', '#3366E6', '#999966', '#99FF99', '#B34D4D',
@@ -98,7 +98,10 @@ function changeObject(response){
 // "# Blender 3.6.5\n# www.blender.org\nmtllib untitled.mtl\no Cube\nv 1.000000 1.000000 -1.000000\nv 1.000000 -1.000000 -1.000000\nv 1.000000 1.000000 1.000000\nv 1.000000 -1.000000 1.000000\nv -1.000000 1.000000 -1.000000\nv -1.000000 -1.000000 -1.000000\nv -1.000000 1.000000 1.000000\nv -1.000000 -1.000000 1.000000\nvn -0.0000 1.0000 -0.0000\nvn -0.0000 -0.0000 1.0000\nvn -1.0000 -0.0000 -0.0000\nvn -0.0000 -1.0000 -0.0000\nvn 1.0000 -0.0000 -0.0000\nvn -0.0000 -0.0000 -1.0000\nvt 0.625000 0.500000\nvt 0.875000 0.500000\nvt 0.875000 0.750000\nvt 0.625000 0.750000\nvt 0.375000 0.750000\nvt 0.625000 1.000000\nvt 0.375000 1.000000\nvt 0.375000 0.000000\nvt 0.625000 0.000000\nvt 0.625000 0.250000\nvt 0.375000 0.250000\nvt 0.125000 0.500000\nvt 0.375000 0.500000\nvt 0.125000 0.750000\ns 0\nusemtl Material\nf 1/1/1 5/2/1 7/3/1 3/4/1\nf 4/5/2 3/4/2 7/6/2 8/7/2\nf 8/8/3 7/9/3 5/10/3 6/11/3\nf 6/12/4 2/13/4 4/5/4 8/14/4\nf 2/13/5 1/1/5 3/4/5 4/5/5\nf 6/11/6 5/10/6 1/1/6 2/13/6\n"
 
 
-let left = false, up = false, right = false, down = false, counterClock = false, clock = false;
+let left = false, up = false, right = false, down = false;
+let counterClock = false, clock = false;
+let aLeft = false, aUp = false, aRight = false, aDown = false;
+
 
 let pause = false;
 
@@ -121,18 +124,18 @@ update();
 
 function updateKeys(code,val) {
     switch (code) {
-        // case "ArrowLeft":
-        // left=val;
-        // break; //Left key
-        // case "ArrowUp":
-        // up=val;
-        // break; //Up key
-        // case "ArrowRight":
-        // right=val;
-        // break; //Right key
-        // case "ArrowDown":
-        // down=val;
-        // break; //Down key
+        case "ArrowLeft":
+            aLeft=val;
+            break; //Left key
+        case "ArrowUp":
+            aUp=val;
+            break; //Up key
+        case "ArrowRight":
+            aRight=val;
+            break; //Right key
+        case "ArrowDown":
+            aDown=val;
+            break; //Down key
         case "1":
             left=val;
             break; //Left key
@@ -156,12 +159,17 @@ function updateKeys(code,val) {
 
 function updateAngle(){
     a = 0.04;
+    mov = 0.05;
     if(left)angleY-=a;
     if(right)angleY+=a;
     if(down)angleX-=a;
     if(up)angleX+=a;
     if(counterClock)angleZ+=a;
     if(clock)angleZ-=a;
+    if(aLeft)pX-=mov;
+    if(aRight)pX+=mov;
+    if(aDown) pZ+=mov;
+    if(aUp) pZ-=mov;
 }
 
 function addRotationMatrices(A, B){
@@ -269,9 +277,9 @@ function draw(){
 }
 
 function vertexShader(x,y,z, m){
-    let x0 = x*m[0] + y*m[1] + z*m[2];
-    let y0 = x*m[3] + y*m[4] + z*m[5];
-    let z0 = x*m[6] + y*m[7] + z*m[8] + dist;
+    let x0 = x*m[0] + y*m[1] + z*m[2] + pX;
+    let y0 = x*m[3] + y*m[4] + z*m[5] + pY;
+    let z0 = x*m[6] + y*m[7] + z*m[8] + pZ;
     return [x0, y0, z0];
 }
 
