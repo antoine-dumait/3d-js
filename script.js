@@ -43,12 +43,18 @@ let cnv = document.getElementById("canvas");
 let ctx = cnv.getContext("2d");
 
 document.body.addEventListener('keydown', function(e) {
-    updateKeys(e.key, true);});
+    updateKeys(e.key, true);
+    pauseActivate(e.key)});
 document.body.addEventListener('keyup', function(e) {
     updateKeys(e.key, false);});
 
 let left = false, up = false, right = false, down = false, counterClock = false, clock = false;
 
+let pause = false;
+
+function pauseActivate(key){
+    if(key=="p") pause=!pause;
+}
 
 cnvWidth = 1000;
 cnvHeight = 1000;
@@ -57,6 +63,10 @@ cnv.height = cnvHeight;
 m=addRotationMatrices(spinY, spinX);
 console.log(m);
 console.log(ans);
+
+let zBuffer = [];
+let triCalc = [];
+
 update();
 
 function updateKeys(code,val) {
@@ -91,7 +101,6 @@ function updateKeys(code,val) {
         case "6":
             clock=val;
             break; //Down key
-        
     }
 }
 
@@ -131,6 +140,7 @@ function addRotationMatrices(A, B){
 }
 
 function update(timeStamp=0){
+    if (pause)return;
     updateAngle()
     // angleY = timeStamp/1000;
     cY = Math.cos(angleY), sY = Math.sin(angleY);
@@ -148,18 +158,57 @@ function update(timeStamp=0){
     ctx.fillStyle = "white";
     ctx.clearRect(0,0, cnvWidth, cnvHeight);
     ctx.fillRect(0,0, cnvWidth, cnvHeight);
-    draw(vert, tri);
+    zBufferUpdate(vert,tri);
+    draw();
+    // console.log(triCalc);
+    // console.log(zBuffer);
+    // draw(vert, tri);
     drawAxes();
-    window.requestAnimationFrame(update)
+    window.requestAnimationFrame(update);
 }
 
-function draw(vert, tri){;
+// function zBufferSort(){
+//     for (let index = 0; index < zBuffer.length; index++) {
+//         const e = zBuffer[index];
+//         const z = e[3];
+//         while
+//     }
+// }
+
+function zBufferUpdate(vert, tri){
+    zBuffer = [];
+    triCalc = [];
     for(i=0; i < tri.length; i+=3){
         let p0 = tri[i]*3, p1 = tri[i+1]*3, p2 = tri[i+2]*3;
         let a = vertexShader(vert[p0], vert[p0+1], vert[p0+2], m);
         let b = vertexShader(vert[p1], vert[p1+1], vert[p1+2], m);  
         let c = vertexShader(vert[p2], vert[p2+1], vert[p2+2], m);
-        ctx.fillStyle = colorArray[(i/3)%(tri.length/3)]  
+        let z = Math.min(a[2], b[2], c[2]);
+        // console.log(a,b,c);
+        triCalc.push([a,b,c])
+        zBuffer.push([i/3,z])
+    }
+    zBuffer.sort((a,b) => (b[1] - a[1]));
+    // console.log(zBuffer);
+}
+
+// function draw(vert, tri){;
+//     for(i=0; i < tri.length; i+=3){
+//         let p0 = tri[i]*3, p1 = tri[i+1]*3, p2 = tri[i+2]*3;
+//         let a = vertexShader(vert[p0], vert[p0+1], vert[p0+2], m);
+//         let b = vertexShader(vert[p1], vert[p1+1], vert[p1+2], m);  
+//         let c = vertexShader(vert[p2], vert[p2+1], vert[p2+2], m);
+//         ctx.fillStyle = colorArray[(i/3)%(tri.length/3)]  ;
+//         drawTri(a,b,c);
+//     }
+// }
+
+function draw(){
+    for(i=0; i < zBuffer.length; i++){
+        let index = zBuffer[i][0];
+        let a = triCalc[index][0], b = triCalc[index][1], c = triCalc[index][2];
+        ctx.fillStyle = colorArray[index%colorArray.length];
+        // console.log(a,b,c);
         drawTri(a,b,c);
     }
 }
