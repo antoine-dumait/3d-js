@@ -15,7 +15,25 @@ dist = 10;
 let spinX = [1,0,0, 0,cX,-sX, 0,sX,cX];
 let spinY = [cY,0,sY, 0,1,0, -sY,0,cY];
 let spinZ = [cZ,-sZ,0, sZ,cZ,0, 0,0,1];
-let ans = [cY,sY*sX,-sY*cX, 0,cX,sX, sY,-cY*sX,cY*cX]
+let ans = [cY,sY*sX,-sY*cX, 0,cX,sX, sY,-cY*sX,cY*cX];
+
+function matrixRotationX(angle){
+    let c = Math.cos(angle);
+    let s = Math.sin(angle);
+    return [1,0,0, 0,c,-s, 0,s,c];
+}
+
+function matrixRotationY(angle){
+    let c = Math.cos(angle);
+    let s = Math.sin(angle);
+    return [c,0,s, 0,1,0, -s,0,c];
+}
+
+function matrixRotationZ(angle){
+    let c = Math.cos(angle);
+    let s = Math.sin(angle);
+    return [c,-s,0, s,c,0, 0,0,1];
+}
 // [ 1, 0, -0, 0, 1, 0, 0, -0, 1 ]
 let none = [1,0,0,0, 0,1,0,0, 0,0,1,dist];     
 // ┌                    ┐
@@ -25,6 +43,7 @@ let none = [1,0,0,0, 0,1,0,0, 0,0,1,dist];
 // │ 0   0      0     1 │
 // └                    ┘
 let pX = 0, pY = 0, pZ = 10;
+let camX = 0, camY = 0, camZ = 0;
 
 var colorArray = ['#FF6633', '#FFB399', '#FF33FF', '#FFFF99', '#00B3E6', 
 		  '#E6B333', '#3366E6', '#999966', '#99FF99', '#B34D4D',
@@ -44,14 +63,34 @@ let ctx = cnv.getContext("2d");
 
 document.body.addEventListener('keydown', function(e) {
     updateKeys(e.key, true);
-    pauseActivate(e.key)});
+    pauseActivate(e.key);
+    logData(e.key);});
 document.body.addEventListener('keyup', function(e) {
     updateKeys(e.key, false);});
 document.getElementById("file_drop").addEventListener("change", dropHandler);
 document.body.addEventListener("drag", dropHandler);
+fps_counter = document.getElementById("fps_counter");
+last_time = performance.now();
+last_show = last_time;
+updateCounterEvery = 100; //ms
+deltas = [];
 
 
+function updateFps(){
+    new_time = performance.now();
+    delta = new_time - last_time;
+    deltas.push(delta);
+    last_time = new_time; 
+}
 
+function updateFpsCounter(){
+    new_time = performance.now();
+    if(new_time - last_show > updateCounterEvery){
+        fps_counter.textContent = "Fps : " + Math.round(1000/(deltas.reduce((a,b) => a + b, 0)/deltas.length));
+        last_show = new_time;
+        deltas = [];
+    }
+}
 function dropHandler(ev) {
     console.log("File(s) dropped");
   
@@ -101,7 +140,7 @@ function changeObject(response){
 let left = false, up = false, right = false, down = false;
 let counterClock = false, clock = false;
 let aLeft = false, aUp = false, aRight = false, aDown = false;
-
+let qKey = false, zKey = false, dKey = false, sKey = false;
 
 let pause = false;
 
@@ -120,7 +159,6 @@ console.log(ans);
 let zBuffer = [];
 let triCalc = [];
 
-update();
 
 function updateKeys(code,val) {
     switch (code) {
@@ -154,22 +192,61 @@ function updateKeys(code,val) {
         case "6":
             clock=val;
             break; //Down key
+        case "q":
+            qKey=val;
+            break; //Down key
+        case "d":
+            dKey=val;
+            break; //Down key
+        case "z":
+            zKey=val;
+            break; //Down key
+        case "s":
+            sKey=val;
+            break; //Down key
+        case "l":
+            logData();
+            break;
     }
+}
+
+function logData(key){
+    if(key != "l") return;
+    console.log("angleX:", angleX, "angleY:", angleY, "angleZ:", angleZ);
+    console.log("player X:", pX, "Y:", pY, "Z", pZ);
+    console.log("cam angle X:", camX, "Y", camY, "Z", camZ);
 }
 
 function updateAngle(){
     a = 0.04;
-    mov = 0.05;
+    mov = 0.15;
+    camSpeed = 0.03;
     if(left)angleY-=a;
     if(right)angleY+=a;
     if(down)angleX-=a;
     if(up)angleX+=a;
     if(counterClock)angleZ+=a;
     if(clock)angleZ-=a;
-    if(aLeft)pX-=mov;
-    if(aRight)pX+=mov;
-    if(aDown) pZ+=mov;
-    if(aUp) pZ-=mov;
+    if(aRight){
+        pX+=mov*Math.sin(camY);
+        pZ-=mov*Math.cos(camY);
+    }
+    if(aLeft){
+        pX-=mov*Math.sin(camY);
+        pZ+=mov*Math.cos(camY);
+    }
+    if(aUp){
+        pX-=mov*Math.sin(camY);
+        pZ-=mov*Math.cos(camY);
+    } 
+    if(aDown){
+        pX+=mov*Math.sin(camY);
+        pZ+=mov*Math.cos(camY); 
+    } 
+    if(qKey) camY -= camSpeed;
+    if(dKey) camY += camSpeed;
+    if(sKey) camX -= camSpeed;
+    if(zKey) camX += camSpeed;
 }
 
 function addRotationMatrices(A, B){
@@ -197,21 +274,24 @@ function addRotationMatrices(A, B){
     return M;
 }
 
+let camMatrix;
+
 function update(timeStamp=0){
     if (pause)return;
     updateAngle()
     // angleY = timeStamp/1000;
-    cY = Math.cos(angleY), sY = Math.sin(angleY);
-    cX = Math.cos(angleX), sX = Math.sin(angleX);
-    cZ = Math.cos(angleZ), sZ = Math.sin(angleZ);
+    // cY = Math.cos(angleY), sY = Math.sin(angleY);
+    // cX = Math.cos(angleX), sX = Math.sin(angleX);
+    // cZ = Math.cos(angleZ), sZ = Math.sin(angleZ);
 
-    spinY = [cY,0,-sY, 0,1,0, sY,0,cY];
-    spinX = [1,0,0, 0,cX,sX, 0,-sX,cX];
-    spinZ = [cZ,-sZ,0, sZ,cZ,0, 0,0,1];
+    spinY = matrixRotationY(angleY);
+    spinX = matrixRotationX(angleX);
+    spinZ = matrixRotationZ(angleZ);
 
     ans = [cY,sY*sX,-sY*cX, 0,cX,sX, sY,-cY*sX,cY*cX]
     m=addRotationMatrices(spinX, spinY);
     m= addRotationMatrices(spinZ, m);
+    camMatrix = addRotationMatrices(matrixRotationX(camX), matrixRotationY(camY)); //inverser matrix et cam Y et X
     // m=ans;
     ctx.fillStyle = "white";
     ctx.clearRect(0,0, cnvWidth, cnvHeight);
@@ -222,6 +302,8 @@ function update(timeStamp=0){
     // console.log(zBuffer);
     // draw(vert, tri);
     drawAxes();
+    updateFps();
+    updateFpsCounter();
     window.requestAnimationFrame(update);
 }
 
@@ -233,6 +315,7 @@ function update(timeStamp=0){
 //     }
 // }
 
+
 function zBufferUpdate(vert, tri){
     zBuffer = [];
     triCalc = [];
@@ -241,12 +324,18 @@ function zBufferUpdate(vert, tri){
         let a = vertexShader(vert[p0], vert[p0+1], vert[p0+2], m);
         let b = vertexShader(vert[p1], vert[p1+1], vert[p1+2], m);  
         let c = vertexShader(vert[p2], vert[p2+1], vert[p2+2], m);
+        a = POrigin(...a);
+        b = POrigin(...b);
+        c = POrigin(...c);
+        a = cameraRotate(...a);
+        b = cameraRotate(...b);
+        c = cameraRotate(...c);
         let z = Math.min(a[2], b[2], c[2]);
         let zMoy = [a[2],b[2],c[2]].reduce((x,y)=>x+y)/3;
         // console.log(zMoy);
         // console.log(a,b,c);
-        triCalc.push([a,b,c])
-        zBuffer.push([i/3,z, zMoy])
+        triCalc.push([a,b,c]);
+        zBuffer.push([i/3,z, zMoy]);
     }
     zBuffer.sort((a,b) => {
         let diff = b[1] - a[1];
@@ -272,14 +361,28 @@ function draw(){
         let a = triCalc[index][0], b = triCalc[index][1], c = triCalc[index][2];
         ctx.fillStyle = colorArray[index%colorArray.length];
         // console.log(a,b,c);
-        drawTri(a,b,c);
+        if(zBuffer[i][1]>0){
+            drawTri(a,b,c);
+        }
     }
 }
 
 function vertexShader(x,y,z, m){
-    let x0 = x*m[0] + y*m[1] + z*m[2] + pX;
-    let y0 = x*m[3] + y*m[4] + z*m[5] + pY;
-    let z0 = x*m[6] + y*m[7] + z*m[8] + pZ;
+    let x0 = x*m[0] + y*m[1] + z*m[2];
+    let y0 = x*m[3] + y*m[4] + z*m[5];
+    let z0 = x*m[6] + y*m[7] + z*m[8];
+    return [x0, y0, z0];
+}
+
+function POrigin(x,y,z){
+    return [x+pX, y+pY, z+pZ]
+}
+
+function cameraRotate(x,y,z){
+    let m = camMatrix;
+    let x0 = x*m[0] + y*m[1] + z*m[2];
+    let y0 = x*m[3] + y*m[4] + z*m[5];
+    let z0 = x*m[6] + y*m[7] + z*m[8];
     return [x0, y0, z0];
 }
 
@@ -315,5 +418,6 @@ function drawAxes(){
     ctx.beginPath();
     ctx.moveTo(xOri, yOri); ctx.lineTo(xOri, -limit);
     ctx.stroke();
-
 }
+
+update();
