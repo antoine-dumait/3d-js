@@ -1,3 +1,29 @@
+locked = false;
+document.addEventListener("click", () => {
+  document.body.requestPointerLock();
+});
+
+document.addEventListener("mousemove", cameraUpdate);
+
+function cameraUpdate(e){
+    if(locked){
+        camX -= e.movementY*camSpeed;
+        camY += e.movementX*camSpeed;
+    }
+}
+document.addEventListener("pointerlockchange", () => {
+  locked = Boolean(document.pointerLockElement);
+});
+
+function clamp(x, min, max){
+    return Math.max(min, Math.min(x, max))
+}
+
+maxCamX = Math.PI/2 
+minCamX = -Math.PI/2 
+function clampCamera(){
+    camX = clamp(camX, minCamX, maxCamX);  
+}
 //              one triangle
 // let vert = [-1,-1,-1, -1,1,-1, 1,-1,-1 ]
 // let tri = [0,1,2 ]
@@ -42,7 +68,7 @@ let none = [1,0,0,0, 0,1,0,0, 0,0,1,dist];
 // │ sy -cy*sx  cy*cx 0 │
 // │ 0   0      0     1 │
 // └                    ┘
-let pX = 0, pY = 0, pZ = 10;
+let pX = 0, pY = 0, pZ = 50;
 let camX = 0, camY = 0, camZ = 0;
 
 var colorArray = ['#FF6633', '#FFB399', '#FF33FF', '#FFFF99', '#00B3E6', 
@@ -70,6 +96,7 @@ document.body.addEventListener('keyup', function(e) {
 document.getElementById("file_drop").addEventListener("change", dropHandler);
 document.body.addEventListener("drag", dropHandler);
 fps_counter = document.getElementById("fps_counter");
+position_counter = document.getElementById("position_counter");
 last_time = performance.now();
 last_show = last_time;
 updateCounterEvery = 100; //ms
@@ -90,6 +117,12 @@ function updateFpsCounter(){
         last_show = new_time;
         deltas = [];
     }
+}
+
+function updatePositionCounter(){
+    position_counter.querySelector("#X").textContent = "X : " + Math.round(pX);
+    position_counter.querySelector("#Y").textContent = "Y : " + Math.round(pY);
+    position_counter.querySelector("#Z").textContent = "Z : " + Math.round(pZ);
 }
 function dropHandler(ev) {
     console.log("File(s) dropped");
@@ -140,7 +173,7 @@ function changeObject(response){
 let left = false, up = false, right = false, down = false;
 let counterClock = false, clock = false;
 let aLeft = false, aUp = false, aRight = false, aDown = false;
-let qKey = false, zKey = false, dKey = false, sKey = false;
+let qKey = false, zKey = false, dKey = false, sKey = false, aKey = false, eKey = false;
 
 let pause = false;
 
@@ -204,6 +237,12 @@ function updateKeys(code,val) {
         case "s":
             sKey=val;
             break; //Down key
+        case "a":
+            aKey=val;
+            break; //Down key
+        case "e":
+            eKey=val;
+            break; //Down key
         case "l":
             logData();
             break;
@@ -212,41 +251,47 @@ function updateKeys(code,val) {
 
 function logData(key){
     if(key != "l") return;
-    console.log("angleX:", angleX, "angleY:", angleY, "angleZ:", angleZ);
+    console.log("angleX:", angleX/Math.PI%2, "angleY:", angleY/Math.PI%2, "angleZ:", angleZ/Math.PI%2);
     console.log("player X:", pX, "Y:", pY, "Z", pZ);
-    console.log("cam angle X:", camX, "Y", camY, "Z", camZ);
+    console.log("cam angle X:", camX/Math.PI%2, "Y", camY/Math.PI%2, "Z", camZ/Math.PI%2);
 }
 
 function updateAngle(){
     a = 0.04;
     mov = 0.15;
-    camSpeed = 0.03;
+    camSpeed = 0.0008;
     if(left)angleY-=a;
     if(right)angleY+=a;
     if(down)angleX-=a;
     if(up)angleX+=a;
     if(counterClock)angleZ+=a;
     if(clock)angleZ-=a;
-    if(aRight){
-        pX+=mov*Math.sin(camY);
-        pZ-=mov*Math.cos(camY);
+    if(qKey){
+        pX+=mov*Math.cos(camY);
+        pZ-=mov*Math.sin(camY);
     }
-    if(aLeft){
-        pX-=mov*Math.sin(camY);
-        pZ+=mov*Math.cos(camY);
+    if(dKey){
+        pX-=mov*Math.cos(camY);
+        pZ+=mov*Math.sin(camY);
     }
-    if(aUp){
+    if(zKey){
         pX-=mov*Math.sin(camY);
         pZ-=mov*Math.cos(camY);
     } 
-    if(aDown){
+    if(sKey){
         pX+=mov*Math.sin(camY);
         pZ+=mov*Math.cos(camY); 
     } 
-    if(qKey) camY -= camSpeed;
-    if(dKey) camY += camSpeed;
-    if(sKey) camX -= camSpeed;
-    if(zKey) camX += camSpeed;
+    if(aKey){
+        pY-=mov;
+    }
+    if(eKey){
+        pY+=mov;
+    }  
+    if(aLeft) camY -= camSpeed;
+    if(aRight) camY += camSpeed;
+    if(aDown) camX -= camSpeed;
+    if(aUp) camX += camSpeed;
 }
 
 function addRotationMatrices(A, B){
@@ -278,7 +323,8 @@ let camMatrix;
 
 function update(timeStamp=0){
     if (pause)return;
-    updateAngle()
+    updateAngle();
+    clampCamera();
     // angleY = timeStamp/1000;
     // cY = Math.cos(angleY), sY = Math.sin(angleY);
     // cX = Math.cos(angleX), sX = Math.sin(angleX);
@@ -301,9 +347,10 @@ function update(timeStamp=0){
     // console.log(triCalc);
     // console.log(zBuffer);
     // draw(vert, tri);
-    drawAxes();
+    // drawAxes();
     updateFps();
     updateFpsCounter();
+    updatePositionCounter();
     window.requestAnimationFrame(update);
 }
 
