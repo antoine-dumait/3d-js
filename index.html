@@ -1,14 +1,6 @@
-<body style="background-color: black;">   
-    <input id="file_drop" type="file" style="position: absolute; z-index: 1; color: rgba(0, 0, 0, 0);">
-    <span id="fps_counter" style="color:rgb(0, 0, 0); position: absolute; z-index: 1; right: 0; margin: 5px;">Fps : 60</span>
-    <div id="position_counter" style="position: absolute; color: black; z-index: 1; margin-top: 10px; margin-left: 2px;">
-        <p id="X">X : </p>
-        <p id="Y">Y : </p>
-        <p id="Z">Z : </p>
-    </div>
-    <div id="drop_zone" style="position: fixed;">
-        <canvas id="canvas" style="background-color: black;">
+<body style="margin: 0; overflow: hidden;">   
+    <input id="file_browse" type="file" accept=".obj" style="position: absolute; z-index: 1; color: rgba(0, 0, 0, 0);">
+        <canvas class="canvas" id="canvas">
         </canvas>
-    </div>
-    <script src="script.js"></script>
+    <script type="module" src="renderer.js"></script>
 </body>
