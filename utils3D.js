@@ -53,7 +53,7 @@ class Vector3D{
         let lineStartToIntersect = Vector3D.multiply(lineStartToEnd, t);
         let x = Vector3D.add(lineStart, lineStartToIntersect);
     
-        return Vector3D.add(lineStart, lineStartToIntersect);
+        return {v : Vector3D.add(lineStart, lineStartToIntersect), t : t};
     }
 
     constructor(x=0, y=0, z=0, w=1){
@@ -81,7 +81,10 @@ class Triangle{
     
         let insidePoints = []; //derriere le plan (à afficher)
         let outsidePoints = []; //avant le plan (derriere le joueur)
-    
+        let insideTextures = [];
+        let outsideTextures = [];
+
+
         let distP0 = distance(tri.p[0]);
         let distP1 = distance(tri.p[1]);
         let distP2 = distance(tri.p[2]);
@@ -90,18 +93,24 @@ class Triangle{
         //pour conserver direction de la normal
         if(distP0 >= 0){
             insidePoints.push(tri.p[0]);
+            insideTextures.push(tri.t[0]);
         } else {
             outsidePoints.push(tri.p[0]);
+            outsideTextures.push(tri.t[0]);
         }
         if(distP1 >= 0){
             insidePoints.push(tri.p[1]);
+            insideTextures.push(tri.t[1]);
         } else {
             outsidePoints.push(tri.p[1]);
+            outsideTextures.push(tri.t[1]);
         }
         if(distP2 >= 0){
             insidePoints.push(tri.p[2]);
+            insideTextures.push(tri.t[2]);
         } else {
             outsidePoints.push(tri.p[2]);
+            outsideTextures.push(tri.t[2]);
         }
     
         //découpage des triangles
@@ -118,21 +127,32 @@ class Triangle{
     
         if( nombreInsidePoints == 1 && nombreOutsidePoints == 2){ //2 points derriere, a remplacer
             let tri1 = new Triangle();
+            tri1.t = tri.t;
             tri1.id = tri.id;
             tri1.color = tri.color;
             //remplacer les point interieur par eux meme sur le vecteur intersectant le plan
             tri1.p[0] = insidePoints[0];
+            tri.t[0] = insideTextures[0];
             //insidePoints[0] to outisdePoints[1] forment une ligne entre les deux intersectant le plan
-            tri1.p[1] = Vector3D.intersectPlane(planePoint, planeNormal, insidePoints[0], outsidePoints[1]);
-            tri1.p[2] = Vector3D.intersectPlane(planePoint, planeNormal, insidePoints[0], outsidePoints[0]);
-    
+            let intersection1 = Vector3D.intersectPlane(planePoint, planeNormal, insidePoints[0], outsidePoints[1]);
+            tri1.p[1] = intersection1.v;
+            tri1.t[1].u = intersection1.t * (outsideTextures[0].u - insideTextures[0].u) + insideTextures[0].u;
+            tri1.t[1].v = intersection1.t * (outsideTextures[0].v - insideTextures[0].v) + insideTextures[0].v;
+
+            let intersection2 = Vector3D.intersectPlane(planePoint, planeNormal, insidePoints[0], outsidePoints[0]);
+            tri1.p[2] = intersection2.v;
+            tri1.t[2].v = intersection2.t * (outsideTextures[1].v - insideTextures[0].v) + insideTextures[0].v;
+            tri1.t[2].u = intersection2.t * (outsideTextures[1].u - insideTextures[0].u) + insideTextures[0].u;
+            
             return [tri1];
         }
     
         if(nombreInsidePoints == 2 && nombreOutsidePoints == 1 ){ //former 2 nouveaux triangles
             let tri1 = new Triangle();
+            tri1.t = tri.t;
             let tri2 = new Triangle();
-    
+            tri2.t = tri.t;
+
             //nouveaux triangles conservent propriétes de l'ancien triangle
             tri1.id = tri.id;
             tri1.color = tri.color;
@@ -141,22 +161,33 @@ class Triangle{
     
             //creation premier tri
             tri1.p[0] = insidePoints[0];
+            tri1.t[0] = insideTextures[0];
+
             tri1.p[1] = insidePoints[1];
-    
-            tri1.p[2] = Vector3D.intersectPlane(planePoint, planeNormal, insidePoints[0], outsidePoints[0]);
-        
+            tri1.t[1] = insideTextures[1];
+
+            let intersection1 = Vector3D.intersectPlane(planePoint, planeNormal, insidePoints[0], outsidePoints[0]);
+            tri1.p[2] = intersection1.v;
+            tri1.t[2].v = intersection1.t * (outsideTextures[0].v - insideTextures[0].v) + insideTextures[0].v;
+            tri1.t[2].u = intersection1.t * (outsideTextures[0].u - insideTextures[0].u) + insideTextures[0].u;
+            
             //creation deuxieme tri
             tri2.p[0] = insidePoints[1];
+            
             tri2.p[1] = tri1.p[2]; //nouveau point créer au dessus
-    
-            tri2.p[2] = Vector3D.intersectPlane(planePoint, planeNormal, insidePoints[1], outsidePoints[0]);
-        
+            tri2.t[1] = tri1.t[2];
+            
+            let intersection2 = Vector3D.intersectPlane(planePoint, planeNormal, insidePoints[1], outsidePoints[0]);
+            tri2.p[2] = intersection2.v;
+            tri2.t[2].v = intersection2.t * (outsideTextures[0].v - insideTextures[1].v) + insideTextures[1].v;
+            tri2.t[2].u = intersection2.t * (outsideTextures[0].u - insideTextures[1].u) + insideTextures[1].u;
             return [tri1, tri2]; //2 nouveaux tri
         }
     }
 
-    constructor(points=[null, null, null], color="white"){
+    constructor(points=[null, null, null], textures=[null, null, null], color="white"){
         this.p = points; // [v1, v2, v3]                    //[[x0,y0,z0], [x1,y1,z1], [x2,y2,z2]]
+        this.t = textures;
         this.color = color;
         this.normal = null;
         this.id = null;
@@ -355,6 +386,7 @@ class Mesh{
     }
 }
 
+
 class Camera{
     constructor(movementSpeed, rotationSpeed){
         this.pos = new Vector3D(0, 0, 0);
@@ -367,16 +399,16 @@ class Camera{
     
     initialize(){
         document.body.addEventListener('mousemove', (e) => { //fonction anonyme to keep this as controller camera
-            console.log(this.locked);
+            // console.log(this.locked);
             if(this.locked){
                 this.updateAngles(e.movementX, e.movementY);
             }
-        console.log("mousemove");
+        // console.log("mousemove");
         });
     }
 
     updateAngles(x, y){
-        let d = 500;
+        let sensi = 500;
         this.yaw += x/d;
     }
 
@@ -414,4 +446,12 @@ class Camera{
     }
 }
 
-export {Vector3D, Triangle, Matrix4x4, Mesh, Camera}
+
+class Vector2D{
+    constructor(u=0, v=0, w=1){
+        this.u = u;
+        this.v = v;
+        this.w = w;
+    }
+}
+export {Vector3D, Triangle, Matrix4x4, Mesh, Camera, Vector2D}
