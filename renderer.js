@@ -1,6 +1,6 @@
 import { Vector3D, Triangle, Matrix4x4, Mesh, Camera, Vector2D } from './utils3D.js';
 import { Controller } from './utils.js';
-
+import { Face, Block } from './world.js';
 let fps_counter = document.getElementById("fps");
 function showFPS(deltaTime){
     let FPS = Math.round(1000/deltaTime);
@@ -22,6 +22,10 @@ let cnvWidth = 1000;
 let cnvHeight = 700;
 cnv.width = cnvWidth;
 cnv.height = cnvHeight;
+
+let resolutionDivider = 1;
+let resWidth = cnvWidth / resolutionDivider;
+let resHeight = cnvHeight / resolutionDivider;
 let imageData = ctx.createImageData(1, 1);
 // let imageData = ctx.createImageData(cnvWidth, cnvHeight);
 // imageData.data[0] = 255;
@@ -52,7 +56,11 @@ function paintPixel(x, y, r, g, b, a=255){
     imageData.data[1] = g;
     imageData.data[2] = b;
     imageData.data[3] = a;
-    ctx.putImageData(imageData, x, y);
+    for (let i=0; i<resolutionDivider; i++){
+        for (let j=0; j<resolutionDivider; j++){
+            ctx.putImageData(imageData, x+j, y+i);
+        }
+    }
 }
 
 function texturedTriangle(
@@ -227,7 +235,7 @@ context.fillStyle = name;
 context.fillRect(0,0,1,1);
 return context.getImageData(0,0,1,1).data;
 }
-console.log(sprite);
+// console.log(sprite);
 function getColorPixelSprite(sprite, u , v){
     let x = Math.max(0,Math.floor(u * (sprite.length - 1)));
     let y = Math.max(0,Math.floor(v * (sprite.length - 1)));
@@ -239,8 +247,8 @@ for(let i=0; i<sprite.length; i++){
     sprite[i] = sprite[i].map(colorName => nameToRgba(colorName));
 }
 // sprite = sprite.map(colorName => nameToRgba(colorName));
-console.log(sprite);
-console.log(getColorPixelSprite(sprite, 0.1, 0.19));
+// console.log(sprite);
+// console.log(getColorPixelSprite(sprite, 0.1, 0.19));
 
 function dropHandler(ev) {
     let mesh = this;
@@ -320,7 +328,7 @@ for (let i=0; i<tris.length; i++){
 
 let meshRotationSpeed = 1;
 let mesh = new Mesh(newVerts, newTris, meshRotationSpeed);
-document.getElementById("file_browse").addEventListener("change", dropHandler.bind(mesh));
+// document.getElementById("file_browse").addEventListener("change", dropHandler.bind(mesh));
 
 
 let lightDirection = new Vector3D(0, 0, -1);
@@ -338,7 +346,41 @@ function getColors(length){
     }
     return colors;
 }
+
+function randomRGBColor(){
+    return [Math.random()*255, Math.random()*255, Math.random()*255];
+}
 let colors = getColors(mesh.tris.length);
+
+function random(min, max){
+    return min + (Math.random() * (max - min));
+}
+
+function randomVector(){
+    return new Vector3D(random(-100, 100), random(-100, 100), random(-100, 100))
+}
+
+let block  = new Block(new Vector3D(0,0,0), nameToRgba("red"));
+let block1  = new Block(new Vector3D(10,0,0), nameToRgba("green"));
+let block2  = new Block(new Vector3D(0,0,10), nameToRgba("blue"));
+let block3  = new Block(new Vector3D(0,10,0), nameToRgba("yellow"));
+
+let objects = [block, block1, block2, block3];
+objects.push(block);
+let testTri = [];
+
+for (let i=0; i<1000; i++){
+    objects.push(new Block(randomVector(), randomRGBColor()))
+}
+
+objects.forEach(objet => {
+    testTri.push(...objet.getTriangles());
+});
+
+console.log(testTri);
+
+mesh.changeTriangles(testTri);
+console.log(mesh.tris);
 
 let near = 0.1;
 let far = 100.0;
@@ -373,7 +415,7 @@ function update(timeStamp=0){
 
     mesh.update(controller); //get input and feed it to object or cam
     camera.update(controller);
-    camera.viewLocked = viewLocked;
+    camera.locked = viewLocked;
     // console.log(camera.viewLocked);
     lightDirection = Matrix4x4.multiplyVector(Matrix4x4.rotation(0,mesh.rotationSpeed%(Math.PI*2)/100,0), lightDirection);
     
@@ -389,6 +431,7 @@ function update(timeStamp=0){
     worldMatrix = Matrix4x4.multiplyMatrix(worldMatrix, matrixZOffset);
    
     let matrixCameraRotation = Matrix4x4.rotationY(camera.yaw);
+    // matrixCameraRotation = Matrix4x4.multiplyMatrix(matrixCameraRotation, Matrix4x4.rotationX(camera.pitch));
     let target = new Vector3D(0, 0, 1);
 
     camera.lookDirection = Matrix4x4.multiplyVector(matrixCameraRotation, target);
@@ -411,6 +454,7 @@ function update(timeStamp=0){
         triTransformed.updateNormal();
 
         triTransformed.id = i;
+        triTransformed.color = tri.color;
         i++;
 
         let cameraRay = Vector3D.sub(triTransformed.p[0], camera.pos);
@@ -423,7 +467,7 @@ function update(timeStamp=0){
             triViewed.p[1] = Matrix4x4.multiplyVector(matrixView, triTransformed.p[1]);
             triViewed.p[2] = Matrix4x4.multiplyVector(matrixView, triTransformed.p[2]);
             triViewed.t = triTransformed.t;
-
+            triViewed.color = triTransformed.color;
             //view space donc clip plane juste plan en face de nous a z = clip distance
             let clipDistance = 0.5;
             let clipPlane = new Vector3D(0, 0, clipDistance); //point de notre plan, juste devant nous
@@ -457,13 +501,12 @@ function update(timeStamp=0){
                 tri.p[2] = Vector3D.add(tri.p[2], offsetVector);
                 
                 //scale to screen size
-                tri.p[0].x *= (cnvWidth / 2); 
-                tri.p[0].y *= (cnvHeight / 2); 
-                tri.p[1].x *= (cnvWidth / 2); 
-                tri.p[1].y *= (cnvHeight / 2); 
-                tri.p[2].x *= (cnvWidth / 2); 
-                tri.p[2].y *= (cnvHeight / 2); 
-                
+                tri.p[0].x *= (resWidth / 2); 
+                tri.p[0].y *= (resHeight / 2); 
+                tri.p[1].x *= (resWidth / 2); 
+                tri.p[1].y *= (resHeight / 2); 
+                tri.p[2].x *= (resWidth / 2); 
+                tri.p[2].y *= (resHeight / 2); 
                 return tri;
             }
 
@@ -476,8 +519,8 @@ function update(timeStamp=0){
                 // let lightDotProduct = Math.max(0.1, Vector3D.dotProduct(lightDirection, triTransformed.normal)); //getting normal from world space triangle
                 let lightDotProduct = 1;
                 // let color = "rgb(" + colors[triProjected.id].map((x) => Math.round(x*lightDotProduct)).join(",") + ")"
-                let color = colors[triProjected.id];
-                triProjected.setColor(color);
+                // let color = colors[triProjected.id];
+                // triProjected.setColor(color);
 
                 trisToView.push(triProjected);
             });
@@ -545,6 +588,7 @@ function update(timeStamp=0){
         }
         // if(triangleQueue[0]) triangleQueue[0].color = "green";
     triangleQueue.forEach( tri => {
+
         texturedTriangle(
             tri.p[0].x, cnvHeight - tri.p[0].y, tri.t[0].u, tri.t[0].v,
             tri.p[1].x, cnvHeight - tri.p[1].y, tri.t[1].u, tri.t[1].v,

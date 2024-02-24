@@ -68,7 +68,13 @@ class Vector3D{
     }
 }
 
-
+function nameToRgba(name) {
+    var canvas = document.createElement('canvas');
+    var context = canvas.getContext('2d');
+    context.fillStyle = name;
+    context.fillRect(0,0,1,1);
+    return context.getImageData(0,0,1,1).data;
+}
 class Triangle{
 
     static clipPlane(planePoint, planeNormal, tri){ //return liste triangle, vide, tri de base, 1 ou 2 nouveaux triangles
@@ -185,7 +191,7 @@ class Triangle{
         }
     }
 
-    constructor(points=[null, null, null], textures=[null, null, null], color="white"){
+    constructor(points=[null, null, null], textures=[null, null, null], color=null){
         this.p = points; // [v1, v2, v3]                    //[[x0,y0,z0], [x1,y1,z1], [x2,y2,z2]]
         this.t = textures;
         this.color = color;
@@ -200,7 +206,7 @@ class Triangle{
     }
 
     setColor(color){
-        this.color = color;
+        this.color = nameToRgba(color);
     }
 }
 
@@ -393,6 +399,7 @@ class Camera{
         this.movementSpeed = movementSpeed;
         this.rotationSpeed = rotationSpeed
         this.yaw = 0; //Y angle
+        this.pitch = 0; //X angle
         this.lookDirection = new Vector3D(0, 0, 1); //init looking at Z ?
         this.locked = false; //is mouse locked in
     }
@@ -409,7 +416,8 @@ class Camera{
 
     updateAngles(x, y){
         let sensi = 500;
-        this.yaw += x/d;
+        this.yaw += x/sensi;
+        this.pitch -= y/sensi;
     }
 
     update(controller){
@@ -429,19 +437,32 @@ class Camera{
         if(k["m"]){
             this.pos.x = changePosition(this.pos.x, +1);
         }
-
         let forward = Vector3D.multiply(this.lookDirection, this.movementSpeed);
+        let right = Matrix4x4.multiplyVector(Matrix4x4.rotationY(Math.PI/2), forward);
+        // console.log(forward.x, forward.y, forward.z);
+        // console.log(right.x, right.y, right.z);
         if(k["q"]){
-            this.yaw -= this.rotationSpeed
+            this.pos = Vector3D.sub(this.pos, right);
+            // this.yaw -= this.rotationSpeed
         }
         if(k["d"]){
-            this.yaw += this.rotationSpeed
+            this.pos = Vector3D.add(this.pos, right);
+            // this.yaw += this.rotationSpeed
         }
         if(k["z"]){
             this.pos = Vector3D.add(this.pos, forward);
         }
         if(k["s"]){
-            this.pos = Vector3D.sub(this.pos, forward);
+            let forwardWithoutY = forward;
+            forwardWithoutY.y = 0;
+            this.pos = Vector3D.sub(this.pos, forwardWithoutY);
+        }
+
+        if(k["a"]){
+            this.pos.y = changePosition(this.pos.y, +1);
+        }
+        if(k["e"]){
+            this.pos.y = changePosition(this.pos.y, -1);
         }
     }
 }

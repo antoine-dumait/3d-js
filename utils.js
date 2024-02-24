@@ -16,6 +16,9 @@ class Controller{
             "q" : false,
             "s" : false,
             "d" : false,
+
+            "a" : false,
+            "e" : false,
         }
     }
 
