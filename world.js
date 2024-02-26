@@ -19,6 +19,7 @@ class Block{
             new Face(p4, p0, p3, p7, color),
             new Face(p1, p5, p6, p2, color)
         ];
+        this.color = color;
     }
 
     getTriangles(){

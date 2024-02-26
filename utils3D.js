@@ -1,3 +1,11 @@
+function nameToRgba(name) {
+    var canvas = document.createElement('canvas');
+    var context = canvas.getContext('2d');
+    context.fillStyle = name;
+    context.fillRect(0,0,1,1);
+    return context.getImageData(0,0,1,1).data;
+}
+
 class Vector3D{
     static add(v1, v2){
         return new Vector3D(v1.x+v2.x, v1.y+v2.y, v1.z+v2.z);
@@ -63,18 +71,18 @@ class Vector3D{
         this.w = w;
     }
 
+    floor(){
+        this.x = Math.round(this.x);
+        this.y = Math.round(this.y);
+        this.z = Math.round(this.z);
+        this.w = Math.round(this.w);
+    }
+
     toLog(){
         return "\n X:" + this.x + "\n Y:" + this.y + "\n Z:" + this.z;   
     }
 }
 
-function nameToRgba(name) {
-    var canvas = document.createElement('canvas');
-    var context = canvas.getContext('2d');
-    context.fillStyle = name;
-    context.fillRect(0,0,1,1);
-    return context.getImageData(0,0,1,1).data;
-}
 class Triangle{
 
     static clipPlane(planePoint, planeNormal, tri){ //return liste triangle, vide, tri de base, 1 ou 2 nouveaux triangles
@@ -197,6 +205,12 @@ class Triangle{
         this.color = color;
         this.normal = null;
         this.id = null;
+    }
+
+    mapToAllPoints(func){
+        for(let i=0; i<3; i++){
+            tri.p[i] = func(tri.p[i]);
+        }
     }
 
     updateNormal(){
@@ -402,6 +416,7 @@ class Camera{
         this.pitch = 0; //X angle
         this.lookDirection = new Vector3D(0, 0, 1); //init looking at Z ?
         this.locked = false; //is mouse locked in
+        this.runMutliplactor = 5;
     }
     
     initialize(){
@@ -438,6 +453,9 @@ class Camera{
             this.pos.x = changePosition(this.pos.x, +1);
         }
         let forward = Vector3D.multiply(this.lookDirection, this.movementSpeed);
+        if(k["Shift"]){
+            forward = Vector3D.multiply(forward, this.runMutliplactor); 
+        }
         let right = Matrix4x4.multiplyVector(Matrix4x4.rotationY(Math.PI/2), forward);
         // console.log(forward.x, forward.y, forward.z);
         // console.log(right.x, right.y, right.z);
@@ -464,6 +482,14 @@ class Camera{
         if(k["e"]){
             this.pos.y = changePosition(this.pos.y, -1);
         }
+
+        if(k["Control"]){
+            this.pos.y = changePosition(this.pos.y, +1);
+        }
+        if(k[" "]){
+            this.pos.y = changePosition(this.pos.y, -1);
+        }
+        
     }
 }
 

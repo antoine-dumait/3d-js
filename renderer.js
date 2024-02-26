@@ -26,7 +26,6 @@ cnv.height = cnvHeight;
 let resolutionDivider = 1;
 let resWidth = cnvWidth / resolutionDivider;
 let resHeight = cnvHeight / resolutionDivider;
-let imageData = ctx.createImageData(1, 1);
 // let imageData = ctx.createImageData(cnvWidth, cnvHeight);
 // imageData.data[0] = 255;
 // imageData.data[1] = 0;
@@ -45,28 +44,56 @@ function drawTriangle(x0, y0, x1, y1, x2, y2, color){
     // ctx.fill();
     ctx.stroke();
 }
+let onceData = true;
+let imageData;
+if(onceData){
+    imageData = ctx.createImageData(cnvWidth, cnvHeight);
+} else {
+    imageData = ctx.createImageData(1, 1);
+}
 
 function paintPixel(x, y, r, g, b, a=255){
-    // let index = y * cnvWidth * 4 + (x * 4)
     // imageData.data[index] = r;
     // imageData.data[index + 1] = g;
     // imageData.data[index + 2] = b;
     // imageData.data[index + 3] = a;
-    imageData.data[0] = r;
-    imageData.data[1] = g;
-    imageData.data[2] = b;
-    imageData.data[3] = a;
-    for (let i=0; i<resolutionDivider; i++){
-        for (let j=0; j<resolutionDivider; j++){
-            ctx.putImageData(imageData, x+j, y+i);
-        }
+    // let index = Math.random()*(cnvHeight) * (cnvWidth * 4) + 
+    //                 (Math.random()*(cnvWidth) * 4);
+    //     index=Math.round(index);
+    //     imageData.data[index + 0] = 255;
+    //     imageData.data[index + 1] = 0;
+    //     imageData.data[index + 2] = 0;
+    //     imageData.data[index + 3] = 255;
+    if(onceData){
+        // let index = Math.random()*(cnvHeight) * (cnvWidth * 4) + 
+        //             (Math.random()*(cnvWidth) * 4);
+        // console.log(x,y);
+        y = Math.round(y);
+        const index = y * (cnvWidth * 4) + (x * 4);
+        // index=Math.round(index);
+        // console.log(index);
+        imageData.data[index + 0] = r;
+        imageData.data[index + 1] = g;
+        imageData.data[index + 2] = b;
+        imageData.data[index + 3] = a;
+    } else {
+        imageData.data[0] = r;
+        imageData.data[1] = g;
+        imageData.data[2] = b;
+        imageData.data[3] = a;
+        ctx.putImageData(imageData, x, y);
     }
+    // for (let i=0; i<resolutionDivider; i++){
+    //     for (let j=0; j<resolutionDivider; j++){
+    //         ctx.putImageData(imageData, x+j, y+i);
+    //     }
+    // }
 }
 
 function texturedTriangle(
-    x1, y1, u1, v1,
-    x2, y2, u2, v2, 
-    x3, y3, u3, v3,
+    x1, y1, u1, v1, w1,
+    x2, y2, u2, v2, w2,
+    x3, y3, u3, v3, w3,
     sprite, color){
     // ctx.fillStyle = color;
     if(y2 < y1){
@@ -74,6 +101,7 @@ function texturedTriangle(
         [x1, x2] = [x2, x1];
         [u1, u2] = [u2, u1];
         [v1, v2] = [v2, v1];
+        [w1, w2] = [w2, w1];
     }      
     
     if(y3 < y1){
@@ -81,6 +109,7 @@ function texturedTriangle(
         [x1, x3] = [x3, x1];
         [u1, u3] = [u3, u1];
         [v1, v3] = [v3, v1];
+        [w1, w3] = [w3, w1];
     }  
     
     if(y3 < y2){
@@ -88,50 +117,61 @@ function texturedTriangle(
         [x2, x3] = [x3, x2];
         [u2, u3] = [u3, u2];
         [v2, v3] = [v3, v2];
+        [w2, w3] = [w3, w2];   
     }  
     
-    let dy1 = y2 - y1;
-    let dx1 = x2 - x1;
+    let dy1 = Math.round(y2 - y1);
+    let dx1 = Math.round(x2 - x1);
     let du1 = u2 - u1;
     let dv1 = v2 - v1;
+    let dw1 = w2 - w1;
 
-    let dy2 = y3 - y1;
-    let dx2 = x3 - x1;
+    let dy2 = Math.round(y3 - y1);
+    let dx2 = Math.round(x3 - x1);
     let du2 = u3 - u1;
     let dv2 = v3 - v1;
+    let dw2 = w3 - w1;
 
     let aXstep = 0, bXstep = 0; //a parti droite, b parti gauche
     let u1step = 0, v1step = 0;
     let u2step = 0, v2step = 0;
+    let w1step = 0, w2step = 0;
 
     if(dy1) aXstep = dx1 / Math.abs(dy1);
     if(dy2) bXstep = dx2 / Math.abs(dy2);
 
     if(dy1) u1step = du1 / Math.abs(dy1);
-    if(dy1) v1step = du1 / Math.abs(dy1);
+    if(dy1) v1step = dv1 / Math.abs(dy1);
+    if(dy1) w1step = dw1 / Math.abs(dy1);
 
     if(dy2) u2step = du2 / Math.abs(dy2);
-    if(dy2) v2step = du2 / Math.abs(dy2);
+    if(dy2) v2step = dv2 / Math.abs(dy2);
+    if(dy2) w2step = dw2 / Math.abs(dy2);
 
+    // console.log(w1step);
     if(dy1){
         for (let i=y1; i<=y2; i++){
-            let aX = x1 + (i - y1) * aXstep;
-            let bX = x1 + (i - y1) * bXstep;
+            let aX = Math.round(x1 + (i - y1) * aXstep);
+            let bX = Math.round(x1 + (i - y1) * bXstep);
 
             let startU = u1 + (i - y1) * u1step;
             let startV = v1 + (i - y1) * v1step;
-            
+            let startW = w1 + (i - y1) * w1step;
+
             let endU = u1 + (i - y1) * u2step;
             let endV = v1 + (i - y1) * v2step;
+            let endW = w1 + (i - y1) * w2step;
 
             if (bX < aX){ //bx doit etre a droite et ax a gauche, traversé horizontale
                 [aX, bX] = [bX, aX];
                 [startU, endU] = [endU, startU];
                 [startV, endV] = [endV, startV];
+                [startW, endW] = [endW, startW];
             }
 
             let u = startU;
             let v = startV;
+            let w = startW;
 
             let tStep =  1 / (bX - aX);
             let t = 0;
@@ -142,49 +182,64 @@ function texturedTriangle(
 
                 u = (1 - t) * startU + t * endU;
                 v = (1 - t) * startV + t * endV;
-                paintPixel(j, i, color[0], color[1], color[2]);
+                w = (1 - t) * startW + t * endW;
+                // if(w!=1){
+                //     console.log(w);
+                // }
+                // if(w > depthBuffer[i*cnvWidth + j]){
+                // }
+                    paintPixel(j, i, color[0], color[1], color[2]);
+                    // depthBuffer[i*cnvWidth + j] = w;
+                // if(w > depthBuffer[i*cnvWidth + j]){
+                //     depthBuffer[i*cnvWidth + j] = w;
+                // }
                 // ctx.fillRect(j, i, 1, 1);
                 t += tStep;
             }
         }
     }
-    dy1 = y3 - y2;
-    dx1 = x3 - x2;
+    dy1 = Math.round(y3 - y2);
+    dx1 = Math.round(x3 - x2);
     dv1 = v3 - v2;
     du1 = u3 - u2;
+    dw1 = w3 - w2;
 
     u1step = 0;
     v1step = 0;
 
-    if(dy1) aXstep = dx1 / Math.abs(dy1);
-    if(dy2) bXstep = dx2 / Math.abs(dy2);
+    if (dy1) aXstep = dx1 / Math.abs(dy1);
+    if (dy2) bXstep = dx2 / Math.abs(dy2);
 
-    if(dy1) u1step = du1 / Math.abs(dy1);
-    if(dy1) v1step = du1 / Math.abs(dy1);
+    if (dy1) u1step = du1 / Math.abs(dy1);
+    if (dy1) v1step = dv1 / Math.abs(dy1);
+    if (dy1) w1step = dw1 / Math.abs(dy1);
+
 
     if(dy1){
         for (let i=y2; i<=y3; i++){
-            let aX = x2 + (i - y2) * aXstep;
-            let bX = x1 + (i - y1) * bXstep;
+            let aX = Math.round(x2 + (i - y2) * aXstep);
+            let bX = Math.round(x1 + (i - y1) * bXstep);
 
             let startU = u2 + (i - y2) * u1step;
             let startV = v2 + (i - y2) * v1step;
-            // console.log(v2 , i , y2, v1step);
-            // console.log("start", startU, startV);
-            
+            let startW = w2 + (i - y2) * w1step;
+
             let endU = u1 + (i - y1) * u2step;
             let endV = v1 + (i - y1) * v2step;
+            let endW = w1 + (i - y1) * w2step;
+
 
             if (bX < aX){ //bx doit etre a droite et ax a gauche, traversé horizontale
                 [aX, bX] = [bX, aX];
                 [startU, endU] = [endU, startU];
                 [startV, endV] = [endV, startV];
+                [startW, endW] = [endW, startW];
             }
 
-            startU = Math.max(0, startU);
-            startV = Math.max(0, startV);
+
             let u = startU;
             let v = startV;
+            let w = startW;
 
         
             let tStep =  1 / (bX - aX);
@@ -195,16 +250,25 @@ function texturedTriangle(
 
                 u = (1 - t) * startU + t * endU;
                 v = (1 - t) * startV + t * endV;
+                w = (1 - t) * startW + t * endW;
+
                 // let newColor = getColorPixelSprite(sprite, u, v);
                 // console.log(newColor);
                 // paintPixel(j, i, newColor[0], newColor[1], newColor[2]);
-                paintPixel(j, i, color[0], color[1], color[2]);
-                // ctx.fillRect(j, i, 1, 1);
+                // if(count < 100){
+                //     console.log(depthBuffer[i*cnvWidth + j], w, i*cnvWidth + j);
+                //     count++;
+                // }
+                // if(w > depthBuffer[i*cnvWidth + j]){
+                // }
+                    paintPixel(j, i, color[0], color[1], color[2]);
+                    // depthBuffer[i*cnvWidth + j] = w;
                 t += tStep;
             }
         }
     }
 }
+let count = 0;
 let spritePath = "./color.spr"
 let sprite = [];
 await fetch(spritePath) //juste trop fort
@@ -334,6 +398,8 @@ let mesh = new Mesh(newVerts, newTris, meshRotationSpeed);
 let lightDirection = new Vector3D(0, 0, -1);
 lightDirection = Vector3D.normalise(lightDirection);
 
+let depthBuffer = [];
+
 function getColors(length){
     let colors = [];
     for (let i = 0; i < length; i++) {
@@ -365,22 +431,45 @@ let block1  = new Block(new Vector3D(10,0,0), nameToRgba("green"));
 let block2  = new Block(new Vector3D(0,0,10), nameToRgba("blue"));
 let block3  = new Block(new Vector3D(0,10,0), nameToRgba("yellow"));
 
-let objects = [block, block1, block2, block3];
-objects.push(block);
+let objects = [block];
+// objects.push(block);
+block.color = "blue";
+block.pos = new Vector3D(1,1,1)
+// console.log(block);
+// console.log(objects[0]);
 let testTri = [];
-
-for (let i=0; i<1000; i++){
-    objects.push(new Block(randomVector(), randomRGBColor()))
+let mapSize = 20;
+for(let x=0; x<mapSize; x++){
+    for(let z=0; z<mapSize; z++){
+        objects.push(new Block(new Vector3D(x, 0, z), nameToRgba("green")))
+    }
 }
+for(let x=0; x<mapSize; x++){
+    for(let z=0; z<mapSize; z++){
+        objects.push(new Block(new Vector3D(x, 1, z), nameToRgba("rgb(102, 51, 0)")))
+    }
+}
+for(let y=2; y<5; y++){
+for(let x=0; x<mapSize; x++){
+    for(let z=0; z<mapSize; z++){
+        objects.push(new Block(new Vector3D(x, y, z), nameToRgba("grey")))
+    }
+}
+}
+// for (let i=0; i<1000; i++){
+//     let rV = randomVector();
+//     rV.y = 0;
+//     objects.push(new Block(rV, randomRGBColor()))
+// }
 
 objects.forEach(objet => {
     testTri.push(...objet.getTriangles());
 });
 
-console.log(testTri);
+// console.log(testTri);
 
 mesh.changeTriangles(testTri);
-console.log(mesh.tris);
+// console.log(mesh.tris);
 
 let near = 0.1;
 let far = 100.0;
@@ -397,7 +486,37 @@ camera.initialize();
 let up = new Vector3D(0, 1, 0);
 
 let lastTime = 0;
+
+document.body.addEventListener('click', (e) => {
+    placeBlock();
+});
+
+function placeBlock(){
+    let forward = Vector3D.add(camera.pos, camera.lookDirection);
+    let newBlock = new Block(forward, block.color);
+    mesh.tris.push(...newBlock.getTriangles());
+}
+
+let blockFront = Vector3D.add(camera.pos, camera.lookDirection);
+let blockFrontDistance = 10;
+let holderBlockColor = nameToRgba("rgb(255, 51, 204)");
+let holderBlock = new Block(Vector3D.add(Vector3D.multiply(camera.lookDirection, blockFrontDistance),new Vector3D(0,1,0)), holderBlockColor);
+let blockTri = holderBlock.getTriangles();
+mesh.tris.push(...blockTri);
+
+function showHolderBlock(){
+    holderBlock = new Block(Vector3D.add(Vector3D.multiply(camera.lookDirection, blockFrontDistance), camera.pos), nameToRgba("rgb(255, 51, 204)"));
+    holderBlock.pos.floor();
+}
+
 function update(timeStamp=0){
+    // holderBlock = new Block(Vector3D.add(Vector3D.multiply(camera.lookDirection, blockFrontDistance), camera.pos), nameToRgba("rgb(255, 51, 204)"));
+    // holderBlock.pos.floor();
+    // for (let i = 0; i < blockTri.length; i++) {
+    //     mesh.tris.pop();
+    // }
+    // blockTri = holderBlock.getTriangles();
+    // mesh.tris.push(...blockTri);
     //set deltaTime et movementSpeed en ajustant
     deltaTime = timeStamp - lastTime; 
     // deltaTime = 1;
@@ -411,8 +530,14 @@ function update(timeStamp=0){
     //     return;
     // }
     
-    // console.clear();
+    for(let i=0; i<cnvWidth*cnvHeight; i++){
+        depthBuffer[i]=0;
+    }
 
+    // console.clear();
+    // console.log(mesh.tris.length);
+    // console.log(block);
+    // console.log(mesh.tris[0]);
     mesh.update(controller); //get input and feed it to object or cam
     camera.update(controller);
     camera.locked = viewLocked;
@@ -437,23 +562,28 @@ function update(timeStamp=0){
     camera.lookDirection = Matrix4x4.multiplyVector(matrixCameraRotation, target);
 
     let newTarget = Vector3D.add(camera.pos, camera.lookDirection);
-    // console.log(newTarget);
+    // console.clear();
+
+   
     let matrixCamera = Matrix4x4.pointAt(camera.pos, newTarget, up);
     let matrixView = Matrix4x4.quickInverse(matrixCamera);
 
-
+    // console.log(worldMatrix);
     // transformation pipeline
+    function triToWorldSpace(tri){
+
+    }
     let i=0;
     mesh.tris.forEach( tri => {
         let triTransformed = new Triangle();
-        triTransformed.p[0] = Matrix4x4.multiplyVector(worldMatrix, tri.p[0]);
-        triTransformed.p[1] = Matrix4x4.multiplyVector(worldMatrix, tri.p[1]);
-        triTransformed.p[2] = Matrix4x4.multiplyVector(worldMatrix, tri.p[2]);
-        
+        triTransformed.p = tri.p.map(tri => Matrix4x4.multiplyVector(worldMatrix, tri));
+        // triTransformed.p[0] = Matrix4x4.multiplyVector(worldMatrix, tri.p[0]);
+        // triTransformed.p[1] = Matrix4x4.multiplyVector(worldMatrix, tri.p[1]);
+        // triTransformed.p[2] = Matrix4x4.multiplyVector(worldMatrix, tri.p[2]);
         triTransformed.t = tri.t;        
         triTransformed.updateNormal();
 
-        triTransformed.id = i;
+        // triTransformed.id = i;
         triTransformed.color = tri.color;
         i++;
 
@@ -463,9 +593,10 @@ function update(timeStamp=0){
             //world space -> view space
             let triViewed = new Triangle();
             triViewed.id = triTransformed.id;
-            triViewed.p[0] = Matrix4x4.multiplyVector(matrixView, triTransformed.p[0]);
-            triViewed.p[1] = Matrix4x4.multiplyVector(matrixView, triTransformed.p[1]);
-            triViewed.p[2] = Matrix4x4.multiplyVector(matrixView, triTransformed.p[2]);
+            triViewed.p = triTransformed.p.map(vec => Matrix4x4.multiplyVector(matrixView, vec));
+            // triViewed.p[0] = Matrix4x4.multiplyVector(matrixView, triTransformed.p[0]);
+            // triViewed.p[1] = Matrix4x4.multiplyVector(matrixView, triTransformed.p[1]);
+            // triViewed.p[2] = Matrix4x4.multiplyVector(matrixView, triTransformed.p[2]);
             triViewed.t = triTransformed.t;
             triViewed.color = triTransformed.color;
             //view space donc clip plane juste plan en face de nous a z = clip distance
@@ -478,10 +609,24 @@ function update(timeStamp=0){
             
             function triangleProjection(tri, offsetVector){
                 //projection,  3D -> 2D
-                tri.p[0] = Matrix4x4.multiplyVector(matrixProjection, tri.p[0]);
-                tri.p[1] = Matrix4x4.multiplyVector(matrixProjection, tri.p[1]);
-                tri.p[2] = Matrix4x4.multiplyVector(matrixProjection, tri.p[2]);
+                tri.p = tri.p.map( vec => Matrix4x4.multiplyVector(matrixProjection, vec));
+                // tri.p[0] = Matrix4x4.multiplyVector(matrixProjection, tri.p[0]);
+                // tri.p[1] = Matrix4x4.multiplyVector(matrixProjection, tri.p[1]);
+                // tri.p[2] = Matrix4x4.multiplyVector(matrixProjection, tri.p[2]);
                 
+                // tri.t[0].u = tri.t[0].u / tri.p[0].w;
+                // tri.t[1].u = tri.t[1].u / tri.p[1].w;
+                // tri.t[2].u = tri.t[2].u / tri.p[2].w;
+
+                // tri.t[0].v = tri.t[0].v / tri.p[0].w;
+                // tri.t[1].v = tri.t[1].v / tri.p[1].w;
+                // tri.t[2].v = tri.t[2].v / tri.p[2].w;
+
+
+                // tri.t[0].w = 1 / tri.p[0].w;
+                // tri.t[1].w = 1 / tri.p[1].w;
+                // tri.t[2].w = 1 / tri.p[2].w;
+                // console.log(tri.t[0].w);
                 //diviser par W pour rester dans espace cartésien ?? TODO : revoir
                 tri.p[0] = Vector3D.divide(tri.p[0], tri.p[0].w)
                 tri.p[1] = Vector3D.divide(tri.p[1], tri.p[1].w)
@@ -507,6 +652,7 @@ function update(timeStamp=0){
                 tri.p[1].y *= (resHeight / 2); 
                 tri.p[2].x *= (resWidth / 2); 
                 tri.p[2].y *= (resHeight / 2); 
+                // console.log(Math.round(tri.p[0].x), tri.p[0].w);
                 return tri;
             }
 
@@ -531,8 +677,8 @@ function update(timeStamp=0){
 
     trisToView.sort(
         (a,b) => {
-            let meanZa = (a.p[0].z + a.p[1].z + a.p[2].z) / 3;
-            let meanZb = (b.p[0].z + b.p[1].z + b.p[2].z) / 3;
+            let meanZa = (a.p[0].z + a.p[1].z + a.p[2].z);
+            let meanZb = (b.p[0].z + b.p[1].z + b.p[2].z);
             return meanZa < meanZb;
         }
     );
@@ -588,11 +734,11 @@ function update(timeStamp=0){
         }
         // if(triangleQueue[0]) triangleQueue[0].color = "green";
     triangleQueue.forEach( tri => {
-
+        // console.log(tri.p[0].w);
         texturedTriangle(
-            tri.p[0].x, cnvHeight - tri.p[0].y, tri.t[0].u, tri.t[0].v,
-            tri.p[1].x, cnvHeight - tri.p[1].y, tri.t[1].u, tri.t[1].v,
-            tri.p[2].x, cnvHeight - tri.p[2].y, tri.t[2].u, tri.t[2].v,
+            tri.p[0].x, cnvHeight - tri.p[0].y, tri.t[0].u, tri.t[0].v, tri.t[0].w,
+            tri.p[1].x, cnvHeight - tri.p[1].y, tri.t[1].u, tri.t[1].v, tri.t[1].w,
+            tri.p[2].x, cnvHeight - tri.p[2].y, tri.t[2].u, tri.t[2].v, tri.t[2].w,
             sprite, tri.color);
 
         // drawTriangle(
@@ -602,10 +748,39 @@ function update(timeStamp=0){
         //     tri.color);
     });
 });
+// for (let y=cnvHeight-1; y>=0; y--){
+//     for (let x=0; x<cnvWidth; x++){
+//         let index = Math.random()*(cnvHeight) * (cnvWidth * 4) + 
+//                     (Math.random()*(cnvWidth) * 4);
+//         index=Math.round(index);
+//         imageData.data[index + 0] = 255;
+//         imageData.data[index + 1] = 0;
+//         imageData.data[index + 2] = 0;
+//         imageData.data[index + 3] = 255;
+//     }
+// }
+
+// imageData = ctx.createImageData(1, 1);
+// for (let y=0; y<cnvHeight; y++){
+//     for (let x=0; x<cnvWidth; x++){
+//         imageData.data[0] = 0;
+//         imageData.data[1] = 0;
+//         imageData.data[2] = 255;
+//         imageData.data[3] = 255;
+//         ctx.putImageData(imageData, Math.round(Math.random()*cnvWidth), 
+//         Math.round(Math.random()*cnvHeight));
+//     }
+// }
 
     // console.log("updated");
     // ctx.putImageData(imageData, 0, 0);
     // imageData = ctx.createImageData(cnvWidth, cnvHeight);
+
+    // console.log(imageData);
+    if(onceData){
+        ctx.putImageData(imageData, 0, 0);
+        imageData = ctx.createImageData(cnvWidth, cnvHeight);
+    }
     window.requestAnimationFrame(update);
     }
 

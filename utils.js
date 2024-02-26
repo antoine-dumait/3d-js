@@ -19,6 +19,10 @@ class Controller{
 
             "a" : false,
             "e" : false,
+
+            "Control" : false,
+            " " : false,
+            "Shift": false,
         }
     }
 
