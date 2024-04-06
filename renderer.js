@@ -1,6 +1,6 @@
-import { Vector3D, Triangle, Matrix4x4, Mesh, Camera, Vector2D } from './utils3D.js';
-import { Controller } from './utils.js';
-import { Face, Block } from './world.js';
+import { Vector3D, Triangle, Matrix4x4, Mesh, Camera, Vector2D } from './utils3D';
+import { Controller } from './utils';
+import { Face, Block } from './world';
 let fps_counter = document.getElementById("fps");
 function showFPS(deltaTime){
     addDelta(deltaTime);
