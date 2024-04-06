@@ -1,4 +1,4 @@
-import { Triangle, Vector2D, Vector3D } from "./utils3D";
+import { Triangle, Vector2D, Vector3D } from "./utilsThreeD";
 
 class Block{
     constructor(pos, color){

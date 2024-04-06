@@ -1,4 +1,4 @@
-import { Vector3D, Triangle, Matrix4x4, Mesh, Camera, Vector2D } from './utils3D.js';
+import { Vector3D, Triangle, Matrix4x4, Mesh, Camera, Vector2D } from './utilsThreeD';
 import { Controller } from './utils.js';
 import { Face, Block } from './world.js';
 let fps_counter = document.getElementById("fps");
