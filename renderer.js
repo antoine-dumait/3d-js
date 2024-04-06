@@ -636,7 +636,7 @@ async function loadTexture(path, name){
 }
 
 // loadTexture('./CozyRoom.png', 'heart');
-let tmpText = await loadTexture('./grass', 'heart');
+let tmpText = await loadTexture('./grass.png', 'heart');
 let texture = {sprite: tmpText[0], width: tmpText[1], height: tmpText[2]};
 console.log(texture);
 // throw 'death';
