@@ -1,6 +1,14 @@
 <body style="margin: 0; overflow: hidden;">   
-    <!-- <input id="file_browse" type="file" accept=".obj" style="position: absolute; z-index: 1;"> -->
-    <p id="fps" style="position: absolute; color: green;"></p>
+    <div style="position: absolute;">
+        <div style="color: white; display: flex; flex-direction: column;">
+            <div id="wireframe_checkbox" style="display: flex; justify-content: space-between;"><label>Wireframe</label><input type="checkbox" checked></div>
+            <div id="fill_checkbox" style="display: flex; justify-content: space-between;"><label>Fill</label><input type="checkbox" checked></div>   
+            <div id="texture_checkbox" style="display: flex; justify-content: space-between;"><label>Texture</label><input type="checkbox" checked></div>
+        </div>
+        <!-- <input id="file_browse" type="file" accept=".obj" style="position: absolute; z-index: 1;"> -->
+        <p id="fps" style="color: green; margin: 0;"></p>
+        <p id="triangle_count" style="color: red; margin: 0;"></p>
+    </div>
     <canvas class="canvas" id="canvas">
     </canvas>
     <script type="module" src="renderer.js"></script>
