@@ -28,14 +28,14 @@ class Block{
         let bottomT1 = new Vector2D(0,1);
         let bottomT2 = new Vector2D(1,1);
         let bottomT3 = new Vector2D(1,0);
-        
+
         this.faces = [
-            new Face(p0, p1, p2, p3, t0, t1, t2, t3, this, "sides"),
-            new Face(p4, p5, p1, p0, t0, t1, t2, t3, this, "sides"),
-            new Face(p7, p6, p5, p4, t0, t1, t2, t3, this, "sides"),
-            new Face(p3, p2, p6, p7, t0, t1, t2, t3, this, "sides"),
-            new Face(p4, p0, p3, p7, bottomT0, bottomT1, bottomT2, bottomT3, this, this.blockType.textures.bottom ? "bottom" : "sides"),
-            new Face(p1, p5, p6, p2, topT0, topT1, topT2, topT3, this, this.blockType.textures.top ? "top" : "sides")
+            new Face(p0, p1, p2, p3, new Vector2D(0,0), new Vector2D(0,1), new Vector2D(1,1), new Vector2D(1,0), this, "sides"),
+            new Face(p4, p5, p1, p0, new Vector2D(0,0), new Vector2D(0,1), new Vector2D(1,1), new Vector2D(1,0), this, "sides"),
+            new Face(p7, p6, p5, p4, new Vector2D(0,0), new Vector2D(0,1), new Vector2D(1,1), new Vector2D(1,0), this, "sides"),
+            new Face(p3, p2, p6, p7, new Vector2D(0,0), new Vector2D(0,1), new Vector2D(1,1), new Vector2D(1,0), this, "sides"),
+            new Face(p0, p3, p7, p4, new Vector2D(0,0), new Vector2D(0,1), new Vector2D(1,1), new Vector2D(1,0), this, this.blockType.textures.top ? "top" : "sides"),
+            new Face(p1, p5, p6, p2, new Vector2D(0,0), new Vector2D(0,1), new Vector2D(1,1), new Vector2D(1,0), this, this.blockType.textures.bottom ? "bottom" : "sides") //bottom and top inversé todo fix 
         ];
 
     }

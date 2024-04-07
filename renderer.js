@@ -288,12 +288,11 @@ function texturedTriangle(
         triangleCount++;
 
         x1 = Math.floor(x1);
-        y1 = Math.floor(y1);
+        y1 = Math.floor(cnvHeight - y1); //canvas render y 0 at top, so we flip
         x2 = Math.floor(x2);
-        y2 = Math.floor(y2);
+        y2 = Math.floor(cnvHeight - y2);
         x3 = Math.floor(x3);
-        y3 = Math.floor(y3);
-    
+        y3 = Math.floor(cnvHeight - y3);
         if(y2 < y1){
             [y1, y2] = [y2, y1];
             [x1, x2] = [x2, x1];
@@ -959,8 +958,8 @@ function update(timeStamp=0){
     let worldMatrix = Matrix4x4.getIdentity();
     worldMatrix = Matrix4x4.multiplyMatrix(worldMatrix, matrixZOffset);
    
-    let matrixCameraRotation = Matrix4x4.rotationY(camera.yaw);
-    // matrixCameraRotation = Matrix4x4.multiplyMatrix(matrixCameraRotation, Matrix4x4.rotationX(camera.pitch));
+    let matrixCameraRotation = Matrix4x4.rotationX(camera.pitch);
+    matrixCameraRotation = Matrix4x4.multiplyMatrix(matrixCameraRotation, Matrix4x4.rotationY(camera.yaw));
     let target = new Vector3D(0, 0, 1);
 
     camera.lookDirection = Matrix4x4.multiplyVector(matrixCameraRotation, target);
@@ -970,7 +969,17 @@ function update(timeStamp=0){
    
     let matrixCamera = Matrix4x4.pointAt(camera.pos, newTarget, up);
     let matrixView = Matrix4x4.quickInverse(matrixCamera);
+    //flip y for it to point up 
+    // [newRight.x,    newRight.y,     newRight.z,     0],
+    // [newUp.x,       newUp.y,        newUp.z,        0],
+    // [newForward.x,  newForward.y,   newForward.z,   0],
+    // [pos.x,         pos.y,          pos.z,          1]
 
+    //todo fix : 
+    // matrixView.m[0][2] *= -1;
+    // matrixView.m[1][2] *= -1;
+    // matrixView.m[2][2] *= -1;
+    // matrixView.m[3][2] *= -1;
     // transformation pipeline
     let i=0;
     mesh.tris.forEach( tri => {
@@ -1032,11 +1041,12 @@ function update(timeStamp=0){
                 tri.p[2] = Vector3D.divide(tri.p[2], tri.p[2].w)
                 
                 //re inversÃ© X et Y
-                tri.p[0].x *= -1; 
+                //flip y for it to point up 
+                // tri.p[0].x *= -1; 
                 tri.p[0].y *= -1; 
-                tri.p[1].x *= -1; 
+                // tri.p[1].x *= -1; 
                 tri.p[1].y *= -1; 
-                tri.p[2].x *= -1; 
+                // tri.p[2].x *= -1; 
                 tri.p[2].y *= -1; 
                 
                 //offset into screen

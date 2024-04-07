@@ -480,28 +480,30 @@ class Camera{
 
     updateAngles(x, y){
         let sensi = 500;
-        this.yaw += x/sensi;
+        this.yaw -= x/sensi;
         this.pitch -= y/sensi;
     }
 
     update(controller){
         let k = controller.keys;
         let changePosition = (pos, sign) => {
-            return (pos + (this.movementSpeed*sign) % (2*Math.PI));
+            return (pos + (this.movementSpeed*sign));
         }
+        let camSensi = 0.05;
         if(k["o"]){
-            this.pos.y = changePosition(this.pos.y, +1);
+            this.pitch -= camSensi;
         }
         if(k["l"]){
-            this.pos.y = changePosition(this.pos.y, -1);
+            this.pitch += camSensi;
         }
         if(k["k"]){
-            this.pos.x = changePosition(this.pos.x, -1);
+            this.yaw-= camSensi;        
         }
         if(k["m"]){
-            this.pos.x = changePosition(this.pos.x, +1);
+            this.yaw += camSensi;
         }
         let forward = Vector3D.multiply(this.lookDirection, this.movementSpeed);
+        forward.y = 0;
         if(k["Shift"]){
             forward = Vector3D.multiply(forward, this.runMutliplactor); 
         }
@@ -509,11 +511,11 @@ class Camera{
         // console.log(forward.x, forward.y, forward.z);
         // console.log(right.x, right.y, right.z);
         if(k["q"]){
-            this.pos = Vector3D.sub(this.pos, right);
+            this.pos = Vector3D.add(this.pos, right);
             // this.yaw -= this.rotationSpeed
         }
         if(k["d"]){
-            this.pos = Vector3D.add(this.pos, right);
+            this.pos = Vector3D.sub(this.pos, right);
             // this.yaw += this.rotationSpeed
         }
         if(k["z"]){
@@ -533,12 +535,12 @@ class Camera{
         }
 
         if(k["Control"]){
-            this.pos.y = changePosition(this.pos.y, -1);
-        }
-        if(k[" "]){
             this.pos.y = changePosition(this.pos.y, +1);
         }
-        
+        if(k[" "]){
+            this.pos.y = changePosition(this.pos.y, -1);
+        }
+        //signes inversés car cest le monde qui bouge pas la camera
     }
 }
 
