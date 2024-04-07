@@ -146,7 +146,9 @@ class Triangle{
         }
     
         if( nombreInsidePoints == 1 && nombreOutsidePoints == 2){ //2 points derriere, a remplacer
-            let tri1 = new Triangle();
+            let tri1 = new tri.constructor(); //permet de choisir entre triangle et triangle of block
+            //todo change adding face even if type is Triangle() to in Triangle.returnCOpy Too
+            tri1.face = tri.face;
             tri1.id = tri.id;
             tri1.color = tri.color;
             //remplacer les point interieur par eux meme sur le vecteur intersectant le plan
@@ -173,14 +175,18 @@ class Triangle{
         if(nombreInsidePoints == 2 && nombreOutsidePoints == 1 ){ //former 2 nouveaux triangles
             
             //nouveaux triangles conservent propriétes de l'ancien triangle
-            let tri1 = new Triangle();
+            let tri1 = new tri.constructor(); //permet de choisir entre triangle et triangle of block
             // tri1.id = tri.id;
             // tri1.color = tri.color;
             // tri1.t = tri.t;
-            let tri2 = new Triangle();
+            tri1.face = tri.face;
+
+            let tri2 = new tri.constructor(); //permet de choisir entre triangle et triangle of block
             // tri2.id = tri.id;
             // tri2.color = tri.color;
             // tri2.t = tri.t;
+            tri2.face = tri.face;
+
     
             //creation premier tri
             tri1.p[0] = insidePoints[0];
@@ -253,7 +259,8 @@ class Triangle{
     }
 
     returnCopy(){
-        let newTri = new Triangle();
+        let newTri = new this.constructor();
+        newTri.face = this.face;
         newTri.p[0] = new Vector3D(this.p[0].x, this.p[0].y, this.p[0].z);
         newTri.p[1] = new Vector3D(this.p[1].x, this.p[1].y, this.p[1].z);
         newTri.p[2] = new Vector3D(this.p[2].x, this.p[2].y, this.p[2].z);

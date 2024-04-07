@@ -1,0 +1,8 @@
+{
+    "name": "grass",
+    "textures": {
+        "sides": "grass_side.png",
+        "top": "grass_top.png",
+        "bottom": "grass_bottom.png"
+    }
+}

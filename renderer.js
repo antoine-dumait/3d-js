@@ -1,6 +1,6 @@
 import { Vector3D, Triangle, Matrix4x4, Mesh, Camera, Vector2D } from './utilsThreeD.js';
 import { Controller } from './utils.js';
-import { Face, Block } from './world.js';
+import { Face, Block, TriangleOfBlock } from './world.js';
 let fps_counter = document.getElementById("fps");
 function showFPS(deltaTime){
     addDelta(deltaTime);
@@ -607,7 +607,7 @@ function gradientTriangle(
 }
 
 //return 1d array [r, g, b, a, ...] of image path
-async function loadTexture(path, name){
+async function loadTexture(path){
     let tmpCNV = document.createElement('canvas');
     let tmpCTX = tmpCNV.getContext('2d');
     let textureWidth, textureHeight;
@@ -628,16 +628,49 @@ async function loadTexture(path, name){
     tmpCNV.height = textureHeight;
     tmpCTX.drawImage(img, 0, 0);
     let data = tmpCTX.getImageData(0, 0, textureWidth, textureHeight).data;
-    console.log(
-    "Image loaded : \n" + 
-    name + " at " + path + "\n" + 
-    "Width : " + textureWidth + " Height : " + textureHeight);
-    return [data, textureWidth, textureHeight];
+    return {data: data, width: textureWidth, height: textureHeight};
 }
 
+class BlockType{
+    constructor(name, path, textures, color=null){
+        this.name = name;
+        this.textures = textures;
+        this.color = color;
+    }
+}
+
+class Texture{ //todo optimize texture loading by awaiting all texture rather than on by one
+    constructor(name, path, texture){ //loadTextureType
+        this.name = name;
+        this.path = path;
+        this.data = texture.data;
+        this.width = texture.width;
+        this.height = texture.height;
+    }
+}
+
+async function loadBlockType(name){
+    let path = name + ".block"; //sus 
+    let text = await getTextFromPath(path);
+    let blockInfo = JSON.parse(text);
+    let textures = {};
+    for (const [name, path] of Object.entries(blockInfo.textures)){
+        textures[name] = await loadTexture(path);
+    }
+    let block = new BlockType(name, path, textures);
+    return block;
+}
+let blocks_types = ["grass", "stone"];
+let blocks = {};
+for (const block of blocks_types) {
+    blocks[block] = await loadBlockType(block);
+}
+console.log(blocks);
+
+
 // loadTexture('./CozyRoom.png', 'heart');
-let tmpText = await loadTexture('./grass.png', 'heart');
-let texture = {sprite: tmpText[0], width: tmpText[1], height: tmpText[2]};
+let tmpText = await loadTexture('./grass_side.png', 'heart');
+let texture =   tmpText;
 console.log(texture);
 // throw 'death';
 let spritePath = "./color.spr"
@@ -720,7 +753,7 @@ function getColorPixelSprite(texture, u, v, w){
     let x = Math.floor(u/w * texture.width);
     let y = Math.floor(v/w * texture.width);
     let index = (y * texture.width + x) << 2;
-    return [texture.sprite[index], texture.sprite[index +1], texture.sprite[index+2], texture.sprite[index+3]];
+    return [texture.data[index], texture.data[index +1], texture.data[index+2], texture.data[index+3]];
 }
 for(let i=0; i<sprite.length; i++){
     sprite[i] = sprite[i].map(colorName => nameToRgba(colorName));
@@ -763,17 +796,18 @@ function randomVector(){
     return new Vector3D(random(-100, 100), random(-100, 100), random(-100, 100))
 }
 
-let block  = new Block(new Vector3D(0,0,0), nameToRgba("red"));
+// let block  = new Block(new Vector3D(0,0,0), nameToRgba("red"));
+console.log(blocks.stone);
 
 let objects = [];
 // objects.push(block);
-block.pos = new Vector3D(1,1,1)
+// block.pos = new Vector3D(1,1,1)
 let objectsTri = [];
 let mapSize = 10;
 function generateBlock(objects){
     for(let x=0; x<mapSize; x++){
         for(let z=0; z<mapSize; z++){
-            objects.push(new Block(new Vector3D(x, 0, z), randomRGBColor()));
+            objects.push(new Block(new Vector3D(x, 0, z), blocks.grass));
         }
     }
     objects.forEach(objet => {
@@ -835,9 +869,10 @@ document.body.addEventListener('click', (e) => {
     placeBlock();
 });
 
+console.log(blocks.stone);
 function placeBlock(){
     let forward = Vector3D.add(camera.pos, camera.lookDirection);
-    let newBlock = new Block(forward, block.color);
+    let newBlock = new Block(forward, blocks.stone);
     mesh.tris.push(...newBlock.getTriangles());
 }
 
@@ -879,7 +914,7 @@ for(let i=0; i<cnvHeight*cnvWidth; i++){
 
 function showHolderBlock(){
     let blockFrontDistance = 10;
-    let holderBlock = new Block(Vector3D.add(Vector3D.multiply(camera.lookDirection, blockFrontDistance), camera.pos), [255, 51, 204]);
+    let holderBlock = new Block(Vector3D.add(Vector3D.multiply(camera.lookDirection, blockFrontDistance), camera.pos), blocks.stone);
     holderBlock.pos.floor();
     let triListe = holderBlock.getTriangles();
     for(let i=0; i<triListe.length; i++){
@@ -965,9 +1000,10 @@ function update(timeStamp=0){
             
             //z pointe en face de nous, donc normal au plan est z
             let clipPlaneNormal = new Vector3D(0, 0, 1);
+
             let tris = Triangle.clipPlane(clipPlane, clipPlaneNormal, triViewed);
             // let tris = [triViewed];
-            
+
             function triangleProjection(tri, offsetVector){
                 //projection,  3D -> 2D
                
@@ -1033,7 +1069,6 @@ function update(timeStamp=0){
         }
     })
 
-    
 
     // trisToView.sort(
     //     (a,b) => {
@@ -1125,17 +1160,27 @@ function update(timeStamp=0){
                 tri.color[0], tri.color[1], tri.color[2]);
         }
         if(renderOn.texture){
+            // console.log(tri.face.block);
+            // console.log(tri.face.block.blockType.textures[tri.face.type]);
+            // console.log(tri);
             texturedTriangle(
                 tri.p[0].x, tri.p[0].y, tri.t[0].u, tri.t[0].v, tri.t[0].w,
                 tri.p[1].x, tri.p[1].y, tri.t[1].u, tri.t[1].v, tri.t[1].w,
                 tri.p[2].x, tri.p[2].y, tri.t[2].u, tri.t[2].v, tri.t[2].w,
-                texture);
+                tri.face.block.blockType.textures[tri.face.type]);
+                //todo contniue implémenter triagnleofblock, de maniere a avoir face coté haut et bas
         }
     });
 });
-
+    // skyblue :: 135,206,235
     ctx.putImageData(imageData, 0, 0);
     imageData = ctx.createImageData(cnvWidth, cnvHeight);
+    for(let i=0; i<cnvHeight*cnvWidth*4; i+=4){
+        imageData.data[i] = 135;
+        imageData.data[i + 1] = 206;
+        imageData.data[i + 2] = 235;
+        imageData.data[i + 3] = 255;
+    }
     ctx.beginPath();
     ctx.strokeStyle = "red";
 
