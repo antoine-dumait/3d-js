@@ -77,7 +77,9 @@ export class World{
     blockAtPos(x: number, y: number, z: number) : (Block | null){ //TODO: use Vector3D ?
         let newPos = Vector3D.sub(new Vector3D(x,y,z), this.origin);
         newPos.floor();
-        if(newPos.x < this.size && newPos.z < this.size && newPos.z < this.size){
+        
+        if(newPos.x < this.size && newPos.z < this.size && newPos.z < this.size
+            && newPos.x >= 0 && newPos.y >= 0 && newPos.z >= 0){
             return this.blocks[newPos.y][newPos.z][newPos.x];
         }
         return null;
@@ -112,7 +114,7 @@ export class World{
         let deltaY = Math.abs(1/target.y);
         let deltaZ = Math.abs(1/target.z);
     
-        let lastStep: string; //dernier movement emi avant dattendre block, x, y ou z, permet de connaitre coté touché
+        let lastStep: Vector3D; //dernier movement emi avant dattendre block, x, y ou z, permet de connaitre coté touché
     
         let distX: number, distY: number, distZ: number;
         if(stepX>0){
@@ -132,21 +134,23 @@ export class World{
         } else {
             distZ = (pos.z - currentZ) * deltaZ;
         }
-    
+        let lastStepX = new Vector3D(1,0,0);
+        let lastStepY = new Vector3D(0,1,0);
+        let lastStepZ = new Vector3D(0,0,1);
         let hit = false;
         while(!hit && Math.max(Math.abs(currentX), Math.abs(currentY), Math.abs(currentZ)) < this.size){
             if(distX < distY && distX < distZ){
                 distX+= deltaX;
                 currentX+=stepX;
-                lastStep = "x";
+                lastStep = lastStepX;
             } else if(distY < distX && distY < distZ){
                 distY+= deltaY;
                 currentY+=stepY;
-                lastStep = "y";
+                lastStep = lastStepY;
             } else {
                 distZ+= deltaZ;
                 currentZ+=stepZ;
-                lastStep = "z";
+                lastStep = lastStepZ;
             }
             let blockHitted = this.blockAtPos(currentX, currentY, currentZ);
             if(blockHitted){
@@ -172,8 +176,11 @@ export class World{
             //     console.log(block);   
             // }
             if(!block)return;
+            if(Vector3D.distance(block.pos, GLOBAL.CAMERA.pos) > GLOBAL.renderDistance)return;
             block!.faces!.forEach( face => {
-                face.triangles.forEach(tri => {      
+                if(!face.isVisible())return;
+                face.triangles.forEach(tri => {  
+                        
                     // console.log(...tri.p);
               
                     let triTransformed = tri.copy();
@@ -225,11 +232,11 @@ export class World{
                             //re inversÃ© X et Y
                             //flip y for it to point up 
                             // tri.p[0].x *= -1; 
-                            tri.p[0].y *= -1; 
+                            // tri.p[0].y *= -1; 
                             // tri.p[1].x *= -1; 
-                            tri.p[1].y *= -1; 
+                            // tri.p[1].y *= -1; 
                             // tri.p[2].x *= -1; 
-                            tri.p[2].y *= -1; 
+                            // tri.p[2].y *= -1; 
                             
                             //offset into screen
                             tri.p[0] = Vector3D.add(tri.p[0], offsetVector);
@@ -278,6 +285,10 @@ export class World{
                             // console.log(triangleQueue);
                             
                             triangleQueue.forEach((tri: Triangle) => {
+                                if(!tri.aux){
+                                    console.log(tri);
+                                    
+                                }
                                 // console.log("drawing");
                                 // console.log(tri, tri.aux.block.blockType.textures[tri.aux.type]);
 
@@ -305,7 +316,6 @@ export class BlockType{
         this.name = name;
         this.path = path;
         this.textures = textures;
-        console.log("cc");
         
         BlockType.blockTypes.push(this);
         BlockType.count ++;        
@@ -358,12 +368,12 @@ export class Block{
         let p7 = new Vector3D(1,0,1); 
 
         this.faces = [
-            new Face(p0, p1, p2, p3, new Vector2D(0,0), new Vector2D(0,1), new Vector2D(1,1), new Vector2D(1,0), this, "sides"),
-            new Face(p4, p5, p1, p0, new Vector2D(0,0), new Vector2D(0,1), new Vector2D(1,1), new Vector2D(1,0), this, "sides"),
-            new Face(p7, p6, p5, p4, new Vector2D(0,0), new Vector2D(0,1), new Vector2D(1,1), new Vector2D(1,0), this, "sides"),
-            new Face(p3, p2, p6, p7, new Vector2D(0,0), new Vector2D(0,1), new Vector2D(1,1), new Vector2D(1,0), this, "sides"),
-            new Face(p0, p3, p7, p4, new Vector2D(0,0), new Vector2D(0,1), new Vector2D(1,1), new Vector2D(1,0), this, this.blockType.textures.top ? "top" : "sides"),
-            new Face(p1, p5, p6, p2, new Vector2D(0,0), new Vector2D(0,1), new Vector2D(1,1), new Vector2D(1,0), this, this.blockType.textures.bottom ? "bottom" : "sides") //bottom and top inversé todo fix 
+            new Face(p0, p1, p2, p3, new Vector2D(0,0), new Vector2D(0,1), new Vector2D(1,1), new Vector2D(1,0), this, "sides", new Vector3D(0,0,-1)),
+            new Face(p4, p5, p1, p0, new Vector2D(0,0), new Vector2D(0,1), new Vector2D(1,1), new Vector2D(1,0), this, "sides", new Vector3D(-1,0,0)),
+            new Face(p7, p6, p5, p4, new Vector2D(0,0), new Vector2D(0,1), new Vector2D(1,1), new Vector2D(1,0), this, "sides", new Vector3D(0,0,+1)),
+            new Face(p3, p2, p6, p7, new Vector2D(0,0), new Vector2D(0,1), new Vector2D(1,1), new Vector2D(1,0), this, "sides", new Vector3D(+1,0,0)),
+            new Face(p0, p3, p7, p4, new Vector2D(0,0), new Vector2D(0,1), new Vector2D(1,1), new Vector2D(1,0), this, this.blockType.textures.top ? "top" : "sides", new Vector3D(0,+1,0)),
+            new Face(p1, p5, p6, p2, new Vector2D(0,0), new Vector2D(0,1), new Vector2D(1,1), new Vector2D(1,0), this, this.blockType.textures.bottom ? "bottom" : "sides", new Vector3D(0,-1,0)) //bottom and top inversé todo fix 
         ];
     }
 
@@ -403,12 +413,15 @@ export class Face{
     block: Block;
     type: string;
     triangles: Triangle[];
+    side: Vector3D;
     constructor(
         p0: Vector3D, p1: Vector3D, p2: Vector3D, p3: Vector3D, 
         t0: Vector2D, t1: Vector2D, t2: Vector2D, t3: Vector2D, 
-        block: Block, type: string ="sides"){
+        block: Block, type: string ="sides",
+        side: Vector3D){
         this.block = block;
         this.type = type;
+        this.side = side;
         this.triangles = [
             new TriangleOfBlock([p0, p1, p2], [t0, t1, t2], this), 
             new TriangleOfBlock([p2, p3, p0], [t2, t3, t0], this)
@@ -417,6 +430,14 @@ export class Face{
 
     getTriangles(){
         return this.triangles;
+    }
+
+    isVisible(){
+        let tmpVec = Vector3D.add(this.block.pos, this.side);
+        tmpVec.floor();
+        return GLOBAL.WORLD.blocks[tmpVec.y][tmpVec.z][tmpVec.x] == null;
+
+        // return GLOBAL.WORLD.blockAtPos(tmpVec.x, tmpVec.y, tmpVec.z) == null; //TODO:fix very slow du to at pos being very slow due to comparaison
     }
 }
 

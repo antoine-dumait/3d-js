@@ -1,17 +1,8 @@
-import { GLOBAL, SCREEN, SCREEN_WIDTH } from "./setup";
-import MyScreen from "./screen";
-import Vector2D from "./vec2";
+import { GLOBAL, SCREEN } from "./setup";
 import Vector3D from "./vec3";
-import Triangle from "./triangle";
 import Matrix4x4 from "./matrix4";
-import Camera from "./camera";
-import Controller from "./controller";
-import { World, BlockType, Block, Face, TriangleOfBlock } from "./world";
-
-
-const CAMERA: Camera = GLOBAL.CAMERA;
-const WORLD: World = GLOBAL.WORLD;
-
+const CAMERA = GLOBAL.CAMERA;
+const WORLD = GLOBAL.WORLD;
 const zOffset = 0;
 const matrixZOffset = Matrix4x4.translation(0, 0, zOffset);
 GLOBAL.worldMatrix = matrixZOffset;
@@ -24,13 +15,13 @@ GLOBAL.test = false;
 // SCREEN.flushFrame();
 let prevTimeStamp = 0;
 GLOBAL.deltaTimeStamp = 0;
-function update(timeStamp: number){
+function update(timeStamp) {
     // console.countReset();
     GLOBAL.zero = 0;
     CAMERA.updateKeys(GLOBAL.CONTROLLER);
     // console.log(CAMERA.pos);
-    GLOBAL.CAMERA.movementSpeed = GLOBAL.movementSpeed* GLOBAL.deltaTimeStamp;
-    GLOBAL.CAMERA.rotationSpeed = GLOBAL.rotationSpeed* GLOBAL.deltaTimeStamp;
+    GLOBAL.CAMERA.movementSpeed = GLOBAL.movementSpeed * GLOBAL.deltaTimeStamp;
+    GLOBAL.CAMERA.rotationSpeed = GLOBAL.rotationSpeed * GLOBAL.deltaTimeStamp;
     GLOBAL.UI.updateFPSCounter(GLOBAL.deltaTimeStamp);
     matrixCameraRotation = Matrix4x4.rotationX(CAMERA.pitch);
     matrixCameraRotation = Matrix4x4.multiplyMatrix(matrixCameraRotation, Matrix4x4.rotationY(CAMERA.yaw));
@@ -43,8 +34,7 @@ function update(timeStamp: number){
     SCREEN.flushFrame();
     // console.log("updated");
     GLOBAL.deltaTimeStamp = timeStamp - prevTimeStamp;
-    prevTimeStamp = timeStamp
+    prevTimeStamp = timeStamp;
     window.requestAnimationFrame(update);
 }
-
 update();

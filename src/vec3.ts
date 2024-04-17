@@ -59,6 +59,14 @@ export default class Vector3D{
         return {vector : Vector3D.add(lineStart, lineStartToIntersect), distance: distance};
     }
 
+    static distance(v1: Vector3D, v2: Vector3D): number{
+        return Math.sqrt(
+            Math.pow((v1.x-v2.x), 2) + 
+            Math.pow((v1.y-v2.y), 2) +
+            Math.pow((v1.z-v2.z), 2)
+            );
+    }
+
     constructor(x=0, y=0, z=0, w=1){
         this.x = x;
         this.y = y;

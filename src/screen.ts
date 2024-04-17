@@ -24,7 +24,7 @@ export default class MyScreen{
         this.canvas = document.getElementsByTagName("canvas")[0];
         this.canvas.width = width;
         this.canvas.height = height;
-        this.ctx = this.canvas.getContext("2d")!;
+        this.ctx = this.canvas.getContext("2d", {alpha: false})!;
         this.frameBufferSize = this.N_PIXELS << 2; //TODO: vérifier si bitwise opération + rapide
         this.frameBuffer = this.ctx.createImageData(width, height);
         this.cleanFrameBuffer = new Uint8ClampedArray(this.frameBufferSize);
@@ -70,11 +70,10 @@ export default class MyScreen{
                 // console.log(index);
                 // GLOBAL.zero ++
             // }
-            this.zBuffer[index] = w;
             this.frameBuffer.data[index] = r;
             this.frameBuffer.data[index + 1] = g;
             this.frameBuffer.data[index + 2] = b;
-            this.frameBuffer.data[index + 3] = a;
+            this.frameBuffer.data[index + 3] = 255;
     }    
 
     drawTexturedTriangle(tri: Triangle, texture: Texture){
@@ -186,16 +185,19 @@ export default class MyScreen{
                     // let tmpIndex = indexY * 4;
                     // this.frameBuffer.data.set(tmpIndex, texture.dataArray.subarray())
                     for (let j=aX; j < bX; j++){
-                        let x = Math.floor(u/w * texture.width);
-                        let y = Math.floor(v/w * texture.width);
                         let index2 = (indexY + j)*4;
-                        let index = (y * texture.width + x) * 4; //TODO: optimize
-                        //TODO: fix white line at bottom by switching array+3 to 255
-                        this.paintPixelBuffer(index2 , w, texture.dataArray[index], texture.dataArray[index+1], texture.dataArray[index+2], texture.dataArray[index+3]);
-                        // t += tStep;
-                        u += uStep;
-                        v += vStep;
-                        w += wStep;
+                        if(this.zBuffer[indexY + j] < w){
+                            this.zBuffer[indexY + j] = w;
+                            let x = Math.floor(u/w * texture.width);
+                            let y = Math.floor(v/w * texture.width);
+                            let index = (y * texture.width + x) * 4; //TODO: optimize
+                            //TODO: fix white line at bottom by switching array+3 to 255
+                            this.paintPixelBuffer(index2 , w, texture.dataArray[index], texture.dataArray[index+1], texture.dataArray[index+2], texture.dataArray[index+3]);
+                            // t += tStep;
+                        }
+                            u += uStep;
+                            v += vStep;
+                            w += wStep;
                     }
                 }
             }
@@ -219,7 +221,7 @@ export default class MyScreen{
             }
 
             if (dy2) {
-                bXstep = dx2 / absDY2;
+                bXstep = dx2 / absDY2; //TODO: useful ?
             }
         
             if(dy1){
@@ -255,13 +257,17 @@ export default class MyScreen{
                     let wStep = tStep*(endW - startW);
                     
                     for (let j=aX; j < bX; j++){
-                        let x = Math.floor(u/w * texture.width);
-                        let y = Math.floor(v/w * texture.width);
-                        let index2 = (indexY + j)*4;
-                        let index = (y * texture.width + x) * 4; //TODO: optimize
-                        //TODO: fix white line at bottom by switching array+3 to 255
-                        this.paintPixelBuffer(index2 , w, texture.dataArray[index], texture.dataArray[index+1], texture.dataArray[index+2], texture.dataArray[index+3]);
-                        // t += tStep;
+                        if(this.zBuffer[indexY + j] < w){
+                            this.zBuffer[indexY + j] = w;
+                            let x = Math.floor(u/w * texture.width);
+                            let y = Math.floor(v/w * texture.width);
+                            let index2 = (indexY + j)*4;
+                            let index = (y * texture.width + x) * 4; //TODO: optimize
+                            //TODO: fix white line at bottom by switching array+3 to 255
+                            this.paintPixelBuffer(index2 , w, texture.dataArray[index], texture.dataArray[index+1], texture.dataArray[index+2], texture.dataArray[index+3]);
+                            // t += tStep;
+                            
+                        }
                         u += uStep;
                         v += vStep;
                         w += wStep;

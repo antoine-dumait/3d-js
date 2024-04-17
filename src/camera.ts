@@ -11,8 +11,8 @@ export default class Camera{
     locked: boolean;  //is mouse locked in
     runMultiplicator: number;
 
-    constructor(movementSpeed: number = 0.01, rotationSpeed: number = 0.01){
-        this.pos = new Vector3D(0, 0, 0);
+    constructor(movementSpeed: number = 0.01, rotationSpeed: number = 0.01, pos: Vector3D){
+        this.pos = pos;
         this.movementSpeed = movementSpeed;
         this.rotationSpeed = rotationSpeed
         this.yaw = 0; 
@@ -24,7 +24,7 @@ export default class Camera{
 
     updateAngles(x: number, y: number){
         let sensi = 500;
-        this.yaw += x/sensi;
+        this.yaw -= x/sensi; //TODO: sus
         this.pitch -= y/sensi;
     }
 
@@ -51,10 +51,10 @@ export default class Camera{
         }
         let right = Matrix4x4.multiplyVector(Matrix4x4.rotationY(Math.PI/2), forward);
         if(c.isDown("q")){
-            this.pos = Vector3D.sub(this.pos, right);
+            this.pos = Vector3D.add(this.pos, right);
         }
         if(c.isDown("d")){
-            this.pos = Vector3D.add(this.pos, right);
+            this.pos = Vector3D.sub(this.pos, right);
         }
         if(c.isDown("z")){
             this.pos = Vector3D.add(this.pos, forward);

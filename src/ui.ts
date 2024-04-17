@@ -3,7 +3,7 @@ import { GLOBAL} from "./setup";
 
 //TODO: add interface for GLOBAL ??
 
-class UI{
+export class UI{
     FPS_counter: HTMLElement;
     triangle_counter: HTMLElement;
     deltaArray: number[];

@@ -52,6 +52,6 @@ export default class Controller{
     }
     
     isDown(key: string){
-        return this.keys[key];
+        return (this.keys as any)[key];
     }
 }
