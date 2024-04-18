@@ -1,5 +1,5 @@
-import { BlockType } from "./world";
-import { GLOBAL} from "./setup";
+import { BlockType } from "./world.js";
+import { GLOBAL} from "./setup.js";
 
 //TODO: add interface for GLOBAL ??
 

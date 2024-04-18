@@ -1,5 +1,5 @@
-import { GLOBAL, SCREEN } from "./setup";
-import { BlockType } from "./world";
+import { GLOBAL, SCREEN } from "./setup.js";
+import { BlockType } from "./world.js";
 export async function getTextFromPath(path) {
     let text;
     await fetch(path)

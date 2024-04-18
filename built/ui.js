@@ -1,4 +1,4 @@
-import { GLOBAL } from "./setup";
+import { GLOBAL } from "./setup.js";
 //TODO: add interface for GLOBAL ??
 export class UI {
     FPS_counter;

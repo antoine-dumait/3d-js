@@ -1,7 +1,7 @@
-import { GLOBAL, SCREEN } from "./setup";
-import Vector3D from "./vec3";
-import Matrix4x4 from "./matrix4";
-import { drawBlock, showHolderBlock } from "./utils3D";
+import { GLOBAL, SCREEN } from "./setup.js";
+import Vector3D from "./vec3.js";
+import Matrix4x4 from "./matrix4.js";
+import { drawBlock, showHolderBlock } from "./utils3D.js";
 const CAMERA = GLOBAL.CAMERA;
 const WORLD = GLOBAL.WORLD;
 const zOffset = 0;

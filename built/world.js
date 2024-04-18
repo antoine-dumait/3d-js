@@ -1,10 +1,10 @@
-import Vector3D from "./vec3";
-import Vector2D from "./vec2";
-import Triangle from "./triangle";
-import Texture from "./texture";
-import { getTextFromPath } from "./utils";
-import { GLOBAL } from "./setup";
-import { drawBlock } from "./utils3D";
+import Vector3D from "./vec3.js";
+import Vector2D from "./vec2.js";
+import Triangle from "./triangle.js";
+import Texture from "./texture.js";
+import { getTextFromPath } from "./utils.js";
+import { GLOBAL } from "./setup.js";
+import { drawBlock } from "./utils3D.js";
 export class World {
     size;
     origin;

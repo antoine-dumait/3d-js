@@ -1,5 +1,5 @@
-import Vector3D from "./vec3";
-import Vector2D from "./vec2";
+import Vector3D from "./vec3.js";
+import Vector2D from "./vec2.js";
 export default class Triangle{
     p: Vector3D[];
     t: Vector2D[];

@@ -1,4 +1,4 @@
-import { GLOBAL } from "./setup";
+import { GLOBAL } from "./setup.js";
 export default class MyScreen {
     width;
     height;
