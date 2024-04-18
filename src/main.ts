@@ -1,13 +1,9 @@
-import { GLOBAL, SCREEN, SCREEN_WIDTH } from "./setup";
-import MyScreen from "./screen";
-import Vector2D from "./vec2";
-import Vector3D from "./vec3";
-import Triangle from "./triangle";
-import Matrix4x4 from "./matrix4";
-import Camera from "./camera";
-import Controller from "./controller";
-import { World, BlockType, Block, Face, TriangleOfBlock } from "./world";
-import { drawBlock, showHolderBlock } from "./utils3D";
+import { GLOBAL, SCREEN, SCREEN_WIDTH } from "./setup.js";
+import Vector3D from "./vec3.js";
+import Matrix4x4 from "./matrix4.js";
+import Camera from "./camera.js";
+import { World, BlockType, Block, Face, TriangleOfBlock } from "./world.js";
+import { drawBlock, showHolderBlock } from "./utils3D.js";
 
 const CAMERA: Camera = GLOBAL.CAMERA;
 const WORLD: World = GLOBAL.WORLD;

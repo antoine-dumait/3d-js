@@ -1,8 +1,8 @@
-import Matrix4x4 from "./matrix4";
-import { GLOBAL, SCREEN, SCREEN_HEIGHT, SCREEN_WIDTH } from "./setup";
-import Triangle from "./triangle";
-import Vector3D from "./vec3";
-import { Block, BlockType, Face } from "./world";
+import Matrix4x4 from "./matrix4.js";
+import { GLOBAL, SCREEN, SCREEN_HEIGHT, SCREEN_WIDTH } from "./setup.js";
+import Triangle from "./triangle.js";
+import Vector3D from "./vec3.js";
+import { Block, BlockType, Face } from "./world.js";
 
 export function showHolderBlock(){
     // console.log(GLOBAL.CAMERA.pos);

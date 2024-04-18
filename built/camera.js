@@ -1,5 +1,5 @@
-import Vector3D from "./vec3";
-import Matrix4x4 from "./matrix4";
+import Vector3D from "./vec3.js";
+import Matrix4x4 from "./matrix4.js";
 export default class Camera {
     pos;
     lookDirection; //init looking at Z !

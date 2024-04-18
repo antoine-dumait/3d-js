@@ -1,6 +1,6 @@
-import { GLOBAL, SCREEN_HEIGHT } from "./setup";
-import Texture from "./texture";
-import Triangle from "./triangle";
+import { GLOBAL, SCREEN_HEIGHT } from "./setup.js";
+import Texture from "./texture.js";
+import Triangle from "./triangle.js";
 
 type Uint8 = number; //integer between 0 and 255
 

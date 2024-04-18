@@ -1,12 +1,12 @@
-import Vector3D from "./vec3";
-import Vector2D from "./vec2";
-import Triangle from "./triangle";
-import Texture from "./texture";
-import Camera from "./camera";
-import { copy, getTextFromPath } from "./utils";
-import Matrix4x4 from "./matrix4";
-import { GLOBAL, SCREEN, SCREEN_HEIGHT, SCREEN_WIDTH } from "./setup";
-import { drawBlock } from "./utils3D";
+import Vector3D from "./vec3.js";
+import Vector2D from "./vec2.js";
+import Triangle from "./triangle.js";
+import Texture from "./texture.js";
+import Camera from "./camera.js";
+import { copy, getTextFromPath } from "./utils.js";
+import Matrix4x4 from "./matrix4.js";
+import { GLOBAL, SCREEN, SCREEN_HEIGHT, SCREEN_WIDTH } from "./setup.js";
+import { drawBlock } from "./utils3D.js";
 
 export class World{
     size: number;

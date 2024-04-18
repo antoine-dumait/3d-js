@@ -1,4 +1,4 @@
-import Vector3D from "./vec3";
+import Vector3D from "./vec3.js";
 
 type Radian = number;
 

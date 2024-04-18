@@ -1,4 +1,4 @@
-import Vector3D from "./vec3";
+import Vector3D from "./vec3.js";
 export default class Matrix4x4 {
     m;
     static multiplyVector(M, v) {
