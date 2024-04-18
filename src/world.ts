@@ -208,7 +208,7 @@ export class BlockType{
 
     static async initBlocks(){
         let blockTypesString = await getTextFromPath("./blocks/blocks_list.txt") as string;
-        BlockType.blockTypesName = blockTypesString.split("\r\n"); 
+        BlockType.blockTypesName = blockTypesString.split("\n"); 
         console.log(this.blockTypesName);
         
         BlockType.blockTypesName.forEach(async name => {            
