@@ -5,7 +5,7 @@ import Matrix4x4 from "./matrix4.js";
 import { changeSelectedBlock, takeScreenshot } from "./utils.js";
 import Vector3D from "./vec3.js";
 import { Block, BlockType, World } from "./world.js";
-import { UI } from "./ui";
+import { UI } from "./ui.js";
 import { placeHolderBlock } from "./utils3D.js";
 // const SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
 const SCREEN_WIDTH = 1280, SCREEN_HEIGHT = 720;
