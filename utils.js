@@ -41,7 +41,7 @@ class Controller{
             this.updateKeys(e.key, false)
             e.preventDefault();
         });
-        }
+    }
 
     updateKeys(code,val) {
         if(Object.keys(this.keys).includes(code)){

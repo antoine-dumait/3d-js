@@ -54,6 +54,9 @@ export default class Vector3D {
         this.z = z;
         this.w = w;
     }
+    equals(v) {
+        return this.x == v.x && this.y == v.y && this.z == v.z;
+    }
     floor() {
         this.x = Math.floor(this.x);
         this.y = Math.floor(this.y);

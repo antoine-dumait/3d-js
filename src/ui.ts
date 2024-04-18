@@ -6,14 +6,16 @@ import { GLOBAL} from "./setup";
 export class UI{
     FPS_counter: HTMLElement;
     triangle_counter: HTMLElement;
+    paint_call_counter: HTMLElement;
     deltaArray: number[];
 
     static maxDeltaVal = 20;
 
-    constructor(FPS_counter: HTMLElement, triangle_counter: HTMLElement){
+    constructor(FPS_counter: HTMLElement, triangle_counter: HTMLElement, paint_call_counter: HTMLElement){
         this.FPS_counter = FPS_counter;
         this.triangle_counter = triangle_counter;
         this.deltaArray = [];
+        this.paint_call_counter = paint_call_counter;
     }
 
     updateFPSCounter(deltaTime: number){
@@ -28,7 +30,17 @@ export class UI{
             this.deltaArray.push(delta);
         }
         addDelta(deltaTime);
-        this.FPS_counter.textContent = calculateFPS() as unknown as string;
+        this.FPS_counter.textContent = "FPS: " + calculateFPS() as unknown as string;
+    }
+
+    updateTriangleCount(){
+        this.triangle_counter.textContent = "Triangle drawn: " + GLOBAL.triangleCount;
+        GLOBAL.triangleCount = 0;
+    }
+
+    updatePaintCallCount(){
+        this.paint_call_counter.textContent = "Paint call: " + GLOBAL.paintCallCount;
+        GLOBAL.paintCallCount = 0;
     }
 
 }

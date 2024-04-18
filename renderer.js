@@ -10,9 +10,6 @@ function showFPS(deltaTime){
 
 
 let viewLocked = false;
-document.addEventListener("click", () => {
-  document.body.requestPointerLock();
-});
 
 document.addEventListener("pointerlockchange", () => {
   viewLocked = Boolean(document.pointerLockElement);
@@ -802,16 +799,145 @@ let objects = [];
 // objects.push(block);
 // block.pos = new Vector3D(1,1,1)
 let objectsTri = [];
-let mapSize = 10;
+let mapSize = 100;
+
+//3d array 100*100*100
+let worldMap = Block.worldMap;
+
+for(let y=0; y<mapSize; y++){
+    let tmpY  = [];
+    for(let z=0; z<mapSize; z++){
+        let tmpZ = [];
+        for(let x=0; x<mapSize; x++){
+            tmpZ.push(null);
+        }
+        tmpY.push(tmpZ);
+    }
+    worldMap.push(tmpY);
+}
+let generateSize = 5;
 function generateBlock(objects){
-    for(let x=0; x<mapSize; x++){
-        for(let z=0; z<mapSize; z++){
-            objects.push(new Block(new Vector3D(x, 0, z), blocks.grass));
+    let y=0;
+    for(let x=0; x<generateSize; x++){
+        for(let z=0; z<generateSize; z++){
+            let block = new Block(new Vector3D(x, y, z), blocks.grass);
+            objects.push(block);
+            worldMap[y][z][x] = block;
         }
     }
     objects.forEach(objet => {
         objectsTri.push(...objet.getTriangles());
     });
+}
+console.log(worldMap);
+function rayCastHit(pos, target){
+    // console.log(pos);
+    let currentX = Math.floor(pos.x);
+    let currentY = Math.abs(Math.floor(pos.y));
+    let currentZ = Math.floor(pos.z);
+
+    let stepX = Math.sign(target.x);
+    let stepY = -Math.sign(target.y);
+    let stepZ = Math.sign(target.z);
+
+    let deltaX = Math.abs(1/target.x);
+    let deltaY = Math.abs(1/target.y);
+    let deltaZ = Math.abs(1/target.z);
+
+    let lastStep; //dernier movement emi avant dattendre block, x, y ou z, permet de connaitre coté touché
+
+    let distX, distY, distZ;
+    if(stepX>0){
+        distX = (currentX + 1 - pos.x) * deltaX;
+    } else {
+        distX = (pos.x - currentX) * deltaX;
+    }
+
+    if(stepY>0){
+        distY = (currentY + 1 - Math.abs(pos.y)) * deltaY;
+    } else {
+        distY = (Math.abs(pos.y) - currentY) * deltaY;
+    }
+
+    if(stepZ>0){
+        distZ = (currentZ + 1 - pos.z) * deltaZ;
+    } else {
+        distZ = (pos.z - currentZ) * deltaZ;
+    }
+
+    let hit = false;
+    while(!hit && Math.max(Math.abs(currentX), Math.abs(currentY), Math.abs(currentZ)) < mapSize){
+        if(distX < distY && distX < distZ){
+            distX+= deltaX;
+            currentX+=stepX;
+            lastStep = "x";
+        } else if(distY < distX && distY < distZ){
+            distY+= deltaY;
+            currentY+=stepY;
+            lastStep = "y";
+        } else {
+            distZ+= deltaZ;
+            currentZ+=stepZ;
+            lastStep = "z";
+        }
+        // console.log(currentY, currentZ, currentX, lastStep);
+        if(worldMap[currentY]){
+            if(worldMap[currentY][currentZ]){
+                if(worldMap[currentY][currentZ][currentX]){
+                    let vectLastStep
+                    if(lastStep == "x"){
+                        vectLastStep = new Vector3D(-stepX,0,0);
+                    } else if(lastStep == "y"){
+                        vectLastStep = new Vector3D(0, stepY,0);
+                    } else if(lastStep == "z"){
+                        vectLastStep = new Vector3D(0,0,-stepZ);
+                    }
+                    return {block: worldMap[currentY][currentZ][currentX], hitFrom: vectLastStep};
+                }
+            }
+        }
+    }
+    return null;
+}
+let currentBlockIndex = 0;
+// class name for selected block : choosen_block
+document.addEventListener("wheel", (e) => {
+    let tmp = document.getElementById(blocks_types[currentBlockIndex]+"_view");
+    tmp.classList.remove("choosen_block");
+    currentBlockIndex = Math.max(0, Math.min(blocks_types.length-1, currentBlockIndex - Math.sign(e.deltaY))); //y is down, down is left
+    console.log(currentBlockIndex);
+    let newTmp = document.getElementById(blocks_types[currentBlockIndex]+"_view");
+    newTmp.classList.add("choosen_block");
+    currentBlock = blocks[blocks_types[currentBlockIndex]];
+    console.log(currentBlock);
+
+})
+
+function placeBlock(){
+    let forward = Vector3D.add(camera.pos, Vector3D.multiply(camera.lookDirection, blockFrontDistance));
+    forward.floor();
+    if(Math.max(forward.x, Math.abs(forward.y), forward.z)){
+        let newBlock = new Block(forward, blocks.stone);
+        console.log(Math.abs(forward.y),forward.z,forward.x);
+        worldMap[Math.abs(forward.y)][forward.z][forward.x] = newBlock;
+    }
+    mesh.tris.push(...newBlock.getTriangles());
+}
+
+let blockFrontDistance = 10;
+let currentBlock = blocks[blocks_types[0]];
+function showHolderBlock(){
+    let hit = rayCastHit(camera.pos, camera.lookDirection);
+    if(!hit){return}
+    let tmpPos
+    let pos = Vector3D.add(hit.block.pos, hit.hitFrom);
+    let holderBlock = new Block(pos, currentBlock);
+    holderBlock.pos.floor();
+    let triListe = holderBlock.getTriangles();
+    for(let i=0; i<triListe.length; i++){
+        mesh.tris.pop();
+    }
+    mesh.tris.push(...triListe);
 }
 
 generateBlock(objects);
@@ -865,15 +991,12 @@ let up = new Vector3D(0, 1, 0);
 let lastTime = 0;
 
 document.body.addEventListener('click', (e) => {
+    document.body.requestPointerLock();
+    console.log(rayCastHit(camera.pos, camera.lookDirection));
     placeBlock();
 });
 
 console.log(blocks.stone);
-function placeBlock(){
-    let forward = Vector3D.add(camera.pos, camera.lookDirection);
-    let newBlock = new Block(forward, blocks.stone);
-    mesh.tris.push(...newBlock.getTriangles());
-}
 
 let renderOn = {
     "wireframe": false,
@@ -905,22 +1028,13 @@ document.body.addEventListener('keydown', (e) => {         //fonction anonyme to
     }
     e.preventDefault();
 });
-
+//todo: continue implement aligning holder block
 let greenaArray8 = ctx.createImageData(cnvWidth, cnvHeight);
 for(let i=0; i<cnvHeight*cnvWidth; i++){
     greenaArray8[i] = 255;
 }
 
-function showHolderBlock(){
-    let blockFrontDistance = 10;
-    let holderBlock = new Block(Vector3D.add(Vector3D.multiply(camera.lookDirection, blockFrontDistance), camera.pos), blocks.stone);
-    holderBlock.pos.floor();
-    let triListe = holderBlock.getTriangles();
-    for(let i=0; i<triListe.length; i++){
-        mesh.tris.pop();
-    }
-    mesh.tris.push(...triListe);
-}
+
 
 // mesh.tris = modelTris;
 // mesh.tris.forEach(tri => tri.color = randomRGBColor());
@@ -1203,6 +1317,20 @@ function update(timeStamp=0){
     
     ctx.closePath();
     ctx.stroke();
+
+    ctx.beginPath();
+    ctx.strokeStyle = "green";
+
+    let crossSize = 10;
+    let appro = 40; //Centre pas au centre ???
+    ctx.moveTo(cnvWidth/2-crossSize/2, cnvHeight/2 + appro); 
+    ctx.lineTo(cnvWidth/2+crossSize/2, cnvHeight/2 + appro); 
+    ctx.moveTo(cnvWidth/2, cnvHeight/2-crossSize/2 + appro); 
+    ctx.lineTo(cnvWidth/2, cnvHeight/2+crossSize/2 + appro); 
+    
+    // ctx.closePath();
+    ctx.stroke();
+
     // drawLine(100,100,0, 400,100,0,     255, 0, 0);
     // drawLine(100,100,0, 100,400,0,     0, 0, 255);
     // drawLine(513,174,0, 341,172,0,   0, 255, 0);

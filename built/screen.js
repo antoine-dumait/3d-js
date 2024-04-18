@@ -1,3 +1,4 @@
+import { GLOBAL } from "./setup";
 export default class MyScreen {
     width;
     height;
@@ -16,7 +17,7 @@ export default class MyScreen {
         this.canvas = document.getElementsByTagName("canvas")[0];
         this.canvas.width = width;
         this.canvas.height = height;
-        this.ctx = this.canvas.getContext("2d", { alpha: false });
+        this.ctx = this.canvas.getContext("2d");
         this.frameBufferSize = this.N_PIXELS << 2; //TODO: vérifier si bitwise opération + rapide
         this.frameBuffer = this.ctx.createImageData(width, height);
         this.cleanFrameBuffer = new Uint8ClampedArray(this.frameBufferSize);
@@ -37,33 +38,18 @@ export default class MyScreen {
         this.ctx.putImageData(buffer, 0, 0);
     }
     flushFrame() {
-        let notYet = true;
         this.flushBuffer(this.frameBuffer);
-        for (let i = 0; i < this.frameBuffer.height * this.frameBuffer.width; i++) {
-            if (this.frameBuffer.data[i] == 67) {
-                // if(notYet){
-                // console.log("nice");
-                // console.log((this.frameBuffer as any).data[i]);
-                // notYet = false;
-                // }
-            }
-        }
         this.frameBuffer;
         this.frameBuffer.data.set(this.cleanFrameBuffer);
         this.zBuffer.set(this.cleanZBuffer);
     }
-    paintPixelBuffer(index, w, r, g, b, a) {
-        //paintedPixelCount++;
-        // if(GLOBAL.zero < 10){
-        // console.log(index);
-        // GLOBAL.zero ++
-        // }
+    paintPixelBuffer(index, w, r, g, b) {
+        GLOBAL.paintCallCount++;
         this.frameBuffer.data[index] = r;
         this.frameBuffer.data[index + 1] = g;
         this.frameBuffer.data[index + 2] = b;
-        this.frameBuffer.data[index + 3] = 255;
     }
-    drawTexturedTriangle(tri, texture) {
+    drawTexturedTriangle(tri, texture, teint = false) {
         // console.count();
         // console.log("draw");
         // console.log("drawTexturedTriangle");
@@ -156,7 +142,12 @@ export default class MyScreen {
                         let y = Math.floor(v / w * texture.width);
                         let index = (y * texture.width + x) * 4; //TODO: optimize
                         //TODO: fix white line at bottom by switching array+3 to 255
-                        this.paintPixelBuffer(index2, w, texture.dataArray[index], texture.dataArray[index + 1], texture.dataArray[index + 2], texture.dataArray[index + 3]);
+                        if (!teint) {
+                            this.paintPixelBuffer(index2, w, texture.dataArray[index], texture.dataArray[index + 1], texture.dataArray[index + 2]);
+                        }
+                        else {
+                            this.paintPixelBuffer(index2, w, Math.floor(texture.dataArray[index] / 4 * 3), Math.floor(texture.dataArray[index + 1] / 4 * 3), Math.floor((texture.dataArray[index + 2] + 150) / 2)); //color mixing block color and blue
+                        }
                         // t += tStep;
                     }
                     u += uStep;
@@ -216,8 +207,12 @@ export default class MyScreen {
                         let index2 = (indexY + j) * 4;
                         let index = (y * texture.width + x) * 4; //TODO: optimize
                         //TODO: fix white line at bottom by switching array+3 to 255
-                        this.paintPixelBuffer(index2, w, texture.dataArray[index], texture.dataArray[index + 1], texture.dataArray[index + 2], texture.dataArray[index + 3]);
-                        // t += tStep;
+                        if (!teint) {
+                            this.paintPixelBuffer(index2, w, texture.dataArray[index], texture.dataArray[index + 1], texture.dataArray[index + 2]);
+                        }
+                        else {
+                            this.paintPixelBuffer(index2, w, Math.floor(texture.dataArray[index] / 4 * 3), Math.floor(texture.dataArray[index + 1] / 4 * 3), Math.floor((texture.dataArray[index + 2] + 150) / 2)); //color mixing block color and blue
+                        }
                     }
                     u += uStep;
                     v += vStep;

@@ -21,8 +21,8 @@ export default class Camera {
     }
     updateAngles(x, y) {
         let sensi = 500;
-        this.yaw -= x / sensi; //TODO: sus
-        this.pitch -= y / sensi;
+        this.yaw = (this.yaw - x / sensi); //TODO: sus
+        this.pitch = (this.pitch - y / sensi) % (Math.PI);
     }
     updateKeys(c) {
         let changePosition = (value, sign) => {
@@ -41,10 +41,12 @@ export default class Camera {
             this.pos.x = changePosition(this.pos.x, +1);
         }
         let forward = Vector3D.multiply(this.lookDirection, this.movementSpeed);
-        if (c.isDown("Shift")) {
+        let forwardWithoutY = forward;
+        forwardWithoutY.y = 0;
+        let right = Matrix4x4.multiplyVector(Matrix4x4.rotationY(Math.PI / 2), forwardWithoutY);
+        if (c.isDown("Control")) {
             forward = Vector3D.multiply(forward, this.runMultiplicator);
         }
-        let right = Matrix4x4.multiplyVector(Matrix4x4.rotationY(Math.PI / 2), forward);
         if (c.isDown("q")) {
             this.pos = Vector3D.add(this.pos, right);
         }
@@ -52,14 +54,12 @@ export default class Camera {
             this.pos = Vector3D.sub(this.pos, right);
         }
         if (c.isDown("z")) {
-            this.pos = Vector3D.add(this.pos, forward);
+            this.pos = Vector3D.add(this.pos, forwardWithoutY);
         }
         if (c.isDown("s")) {
-            let forwardWithoutY = forward;
-            forwardWithoutY.y = 0;
             this.pos = Vector3D.sub(this.pos, forwardWithoutY);
         }
-        if (c.isDown("Control")) {
+        if (c.isDown("Shift")) {
             this.pos.y = changePosition(this.pos.y, +1); //TODO: fix y sign, should be -1
         }
         if (c.isDown(" ")) {

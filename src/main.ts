@@ -7,7 +7,7 @@ import Matrix4x4 from "./matrix4";
 import Camera from "./camera";
 import Controller from "./controller";
 import { World, BlockType, Block, Face, TriangleOfBlock } from "./world";
-
+import { drawBlock, showHolderBlock } from "./utils3D";
 
 const CAMERA: Camera = GLOBAL.CAMERA;
 const WORLD: World = GLOBAL.WORLD;
@@ -24,14 +24,18 @@ GLOBAL.test = false;
 // SCREEN.flushFrame();
 let prevTimeStamp = 0;
 GLOBAL.deltaTimeStamp = 0;
+
 function update(timeStamp: number){
     // console.countReset();
+    showHolderBlock();
     GLOBAL.zero = 0;
     CAMERA.updateKeys(GLOBAL.CONTROLLER);
     // console.log(CAMERA.pos);
     GLOBAL.CAMERA.movementSpeed = GLOBAL.movementSpeed* GLOBAL.deltaTimeStamp;
     GLOBAL.CAMERA.rotationSpeed = GLOBAL.rotationSpeed* GLOBAL.deltaTimeStamp;
     GLOBAL.UI.updateFPSCounter(GLOBAL.deltaTimeStamp);
+    GLOBAL.UI.updateTriangleCount();
+    GLOBAL.UI.updatePaintCallCount();
     matrixCameraRotation = Matrix4x4.rotationX(CAMERA.pitch);
     matrixCameraRotation = Matrix4x4.multiplyMatrix(matrixCameraRotation, Matrix4x4.rotationY(CAMERA.yaw));
     CAMERA.lookDirection = Matrix4x4.multiplyVector(matrixCameraRotation, target);
@@ -39,6 +43,7 @@ function update(timeStamp: number){
     matrixCamera = Matrix4x4.pointAt(CAMERA.pos, forward, GLOBAL.UP);
     GLOBAL.matrixView = Matrix4x4.quickInverse(matrixCamera);
     WORLD.draw();
+    drawBlock(GLOBAL.holderBlock, true);
     // SCREEN.drawTexturedTriangle(new Triangle([new Vector3D(0, 0, 1), new Vector3D(0,200,1), new Vector3D(200, 200, 1)]), BlockType.blockTypes[1].textures.sides);
     SCREEN.flushFrame();
     // console.log("updated");
@@ -47,4 +52,4 @@ function update(timeStamp: number){
     window.requestAnimationFrame(update);
 }
 
-update();
+update(0);
