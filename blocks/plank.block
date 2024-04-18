@@ -1,0 +1,6 @@
+{
+    "name": "plank",
+    "textures": {
+        "sides": "plank.png"
+    }
+}
