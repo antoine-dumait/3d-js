@@ -72,10 +72,10 @@ class Vector3D{
     }
 
     floor(){
-        this.x = Math.round(this.x);
-        this.y = Math.round(this.y);
-        this.z = Math.round(this.z);
-        this.w = Math.round(this.w);
+        this.x = Math.floor(this.x);
+        this.y = Math.floor(this.y);
+        this.z = Math.floor(this.z);
+        this.w = Math.floor(this.w);
     }
 
     toLog(){
