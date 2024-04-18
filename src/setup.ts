@@ -23,7 +23,6 @@ GLOBAL.aspectRatio = SCREEN_HEIGHT / SCREEN_WIDTH;
 GLOBAL.matrixProjection = Matrix4x4.makeProjection(GLOBAL.FOVdegrees, GLOBAL.aspectRatio, GLOBAL.near, GLOBAL.far);
 GLOBAL.deltaTime = 0; //en millisecondes
 GLOBAL.UP = new Vector3D(0, 1, 0);
-sleep(200);
 console.log(BlockType.blockTypes);
 
 await BlockType.initBlocks();
@@ -31,7 +30,7 @@ await BlockType.initBlocks();
 function sleep(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
-await sleep(400);
+await sleep(1000);
 const hotbar = document.getElementById("hotbar")!;
 
 BlockType.blockTypes.forEach(blockType => {
