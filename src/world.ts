@@ -186,6 +186,21 @@ export class World{
     }
 }
 
+// {
+//     top:
+// }
+interface TextureType{
+    sides?: Texture,
+    top?: Texture,
+    bottom?: Texture
+}
+
+enum Sides {
+    sides = "sides",
+    top = "top",
+    bottom = "bottom",
+} 
+
 export class BlockType{
     name: string;
     path: string;
@@ -209,20 +224,19 @@ export class BlockType{
     static async initBlocks(){
         let blockTypesString = await getTextFromPath("./blocks/blocks_list.txt") as string;
         BlockType.blockTypesName = blockTypesString.split("\n"); 
-        console.log(this.blockTypesName);
         
-        BlockType.blockTypesName.forEach(async name => {            
-            await BlockType.loadBlockType(name);
-        });
+        for (let i = 0; i < BlockType.blockTypesName.length; i++) {
+            await BlockType.loadBlockType(BlockType.blockTypesName[i]);
+            
+        }
     }
 
     static async loadBlockType(name: string){
         let path: string = name + ".block"; //sus 
         let text: string = await getTextFromPath("blocks/" + path);
-        console.log(text);
               
         let blockInfo = JSON.parse(text);
-        let textures = {};
+        let textures: TextureType = {};
         
         let ent = Object.entries(blockInfo.textures);
         for (let i=0; i<Object.entries(blockInfo.textures).length; i++){
@@ -230,11 +244,10 @@ export class BlockType{
             let path = ent[i][1];
             // console.log(name);
             
-            (textures as any)[name] = await Texture.loadTexture("textures/" + (path as string)); //TODO fix as any
+            textures[name] = await Texture.loadTexture("textures/" + (path as string)); //TODO fix as any
             // console.log( (textures as any)[name]);
             
         }     
-        console.log(textures);
         
         new BlockType(name, path, textures);
     }

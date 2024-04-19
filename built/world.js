@@ -174,6 +174,12 @@ export class World {
         // }
     }
 }
+var Sides;
+(function (Sides) {
+    Sides["sides"] = "sides";
+    Sides["top"] = "top";
+    Sides["bottom"] = "bottom";
+})(Sides || (Sides = {}));
 export class BlockType {
     name;
     path;
@@ -193,15 +199,13 @@ export class BlockType {
     static async initBlocks() {
         let blockTypesString = await getTextFromPath("./blocks/blocks_list.txt");
         BlockType.blockTypesName = blockTypesString.split("\n");
-        console.log(this.blockTypesName);
-        BlockType.blockTypesName.forEach(async (name) => {
-            await BlockType.loadBlockType(name);
-        });
+        for (let i = 0; i < BlockType.blockTypesName.length; i++) {
+            await BlockType.loadBlockType(BlockType.blockTypesName[i]);
+        }
     }
     static async loadBlockType(name) {
         let path = name + ".block"; //sus 
         let text = await getTextFromPath("blocks/" + path);
-        console.log(text);
         let blockInfo = JSON.parse(text);
         let textures = {};
         let ent = Object.entries(blockInfo.textures);
@@ -212,7 +216,6 @@ export class BlockType {
             textures[name] = await Texture.loadTexture("textures/" + path); //TODO fix as any
             // console.log( (textures as any)[name]);
         }
-        console.log(textures);
         new BlockType(name, path, textures);
     }
     getSideTextures(side) {
