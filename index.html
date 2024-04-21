@@ -3,7 +3,6 @@
     font-family: Square;
     src: url("FORCED\ SQUARE.ttf");
     }
-
     .choosen_block{
         border-color: blueviolet !important;
     }
@@ -15,6 +14,28 @@
         background-size: cover; 
         /* background-image: url('grass_side.png') */
     }
+    .symbol{
+        display: flex;
+    }
+    .symbol a:first-child{
+        font-weight: bolder;
+        color: rgb(204, 6, 6);
+        background-color: rgb(238, 231, 195);
+        border: solid 5px transparent;
+        border-radius: 5px;
+        /* width: 0.7em; */
+        margin-bottom: 8px;
+        outline: rgb(161, 161, 161) 2px solid;
+    }
+
+    .symbol a:not(:first-child){
+        font-weight: 600;
+        margin-left: 5px;
+        margin-top: 5px;
+        color: white;
+    }
+
+
 </style>
 <body style="margin: 0; overflow: hidden; font-family: Square;">   
     <div style="position: absolute; color: rgb(203, 18, 18); margin-left: 5px; font-size: 1.1em;">
@@ -27,11 +48,53 @@
         <p id="fps" style="margin: 0;"></p>
         <p id="triangle_count" style="margin: 0;"></p>
         <p id="paint_call_count" style="margin: 0;"></p>
+        <p id="xyz" style="margin: 0;"></p>
     </div>
-    <div id="hotbar" style="position: absolute; left:50%; bottom: 10px; display: flex; flex-direction: row;">
+    <div id="main" style="display: flex; justify-content: space-between; height: 100%;">
+        <div id="screen">
+            <div id="hotbar" style="position: absolute; left:40%; bottom: calc(3em + 9px); display: flex; flex-direction: row;"></div>
+            <canvas class="canvas" id="canvas"></canvas>
+        </div>
+        <div id="sidebar" style="font-family: 'Courier New', Courier, monospace; background-color: rgb(35, 35, 35);">
+            <button style="width: 3em; height: 3em; color: white; left: -15px; background-color: rgb(35, 35, 35); position: relative; border: 5px solid rgb(35, 35, 35); border-radius: 5px;"
+            onclick="
+            let isHidden = this.textContent == '>';
+            this.textContent = (isHidden ? '<' : '>');
+            this.style.left = isHidden ? '0' : '-15px';
+            let sec = document.getElementById('secondary');
+            sec.style.display = (isHidden ? 'none' : 'block');
+            let sidebar = document.getElementById('sidebar');
+            console.log(sidebar);
+            sidebar.style.backgroundColor = (isHidden ? 'transparent' : 'rgb(35, 35, 35)');
+            ">></button>
+            <div id="secondary" style="display: block;">
+                <div id="readme" style="position: relative; top: -2em; padding: 0 5px 0 15px; color: white;">
+                    <p>
+                        3D-JS is an attempt to write a software renderer in JS and using it to build a Minecraft like "game".
+                        3D-JS is written completely in vanilla JS, meaning no 3D libraries like Three.js or Babylon.js, nor harware acceleration (only uses the CPU).
+                        Mathematical implementations of 2D or 3D vectors and matrix are also self made and  written directly in JS.
+                        It only uses the context of the canvas available in JS, trying to overcome it's poor performances.
+                    </p>
+                    <p>To see a more detailed explanation, the source files and the why, checkout the GitHub repository
+                        <a href="https://github.com/antoine-dumait/3d-js" target="_blank">here</a>.
+                    </p>
+                </div>
+                <p style="text-align: center; font-weight: bold; color: white;">Controls :</p>
+                <div id="controls" style="margin-left: 5px; display: flex; justify-content: space-evenly;">
+                    <div>
+                        <div class="symbol"><a>Z</a><a>Forward</a></div>
+                        <div class="symbol"><a>Q</a><a>Left</a></div>
+                        <div class="symbol"><a>S</a><a>Backward</a></div>
+                        <div class="symbol"><a>D</a><a>Right</a></div>
+                    </div>
+                    <div>
+                        <div class="symbol"><a>Space</a><a>Up</a></div>
+                        <div class="symbol"><a>Ctrl</a><a>Down</a></div>
+                    </div>
+                </div>
+            </div>
+            </div>
     </div>
-    <canvas class="canvas" id="canvas">
-    </canvas>
     <!-- <script type="module" src="renderer.js"></script> -->
     <script type="module" src="./built/main.js"></script>
 </body>

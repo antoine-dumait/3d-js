@@ -4,13 +4,15 @@ export class UI {
     FPS_counter;
     triangle_counter;
     paint_call_counter;
+    XYZ_shower;
     deltaArray;
     static maxDeltaVal = 20;
-    constructor(FPS_counter, triangle_counter, paint_call_counter) {
+    constructor(FPS_counter, triangle_counter, paint_call_counter, XYZ_shower) {
         this.FPS_counter = FPS_counter;
         this.triangle_counter = triangle_counter;
         this.deltaArray = [];
         this.paint_call_counter = paint_call_counter;
+        this.XYZ_shower = XYZ_shower;
     }
     updateFPSCounter(deltaTime) {
         const calculateFPS = () => {
@@ -33,5 +35,11 @@ export class UI {
     updatePaintCallCount() {
         this.paint_call_counter.textContent = "Paint call: " + GLOBAL.paintCallCount;
         GLOBAL.paintCallCount = 0;
+    }
+    updateXYZShower() {
+        this.XYZ_shower.textContent = "XYZ : " +
+            Math.floor(GLOBAL.CAMERA.pos.x) + "/" +
+            Math.floor(GLOBAL.CAMERA.pos.y) + "/" +
+            Math.floor(GLOBAL.CAMERA.pos.z);
     }
 }

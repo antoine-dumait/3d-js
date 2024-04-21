@@ -68,7 +68,7 @@ GLOBAL.CONTROLLER.initialize();
 const FPS_counter = document.getElementById("fps")!;
 const triangle_counter = document.getElementById("triangle_count")!;
 const paint_call_counter = document.getElementById("paint_call_count")!;
-
+const XYZ_shower = document.getElementById("xyz")!;
 
 GLOBAL.paintCallCount = 0;
 GLOBAL.triangleCount = 0;
@@ -77,7 +77,7 @@ GLOBAL.currentBlock = BlockType.blockTypes[GLOBAL.currentIndexHotbar];
 
 GLOBAL.holderBlock = new Block(new Vector3D(0,0,0), GLOBAL.currentBlock)
 GLOBAL.hitDir = null;
-GLOBAL.UI = new UI(FPS_counter, triangle_counter, paint_call_counter)
+GLOBAL.UI = new UI(FPS_counter, triangle_counter, paint_call_counter, XYZ_shower);
 
 document.addEventListener("pointerlockchange", () => {
   GLOBAL.CAMERA.locked = Boolean(document.pointerLockElement);

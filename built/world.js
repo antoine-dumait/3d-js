@@ -42,6 +42,9 @@ export class World {
     }
     //must be INTGER
     addBlock(block, x, y, z) {
+        // x= Math.floor(x);
+        // y= Math.floor(y);
+        // z= Math.floor(z);
         if (x < this.size && y < this.size && z < this.size) {
             this.blocks[y][z][x] = block;
         }
@@ -208,11 +211,11 @@ export class BlockType {
         let text = await getTextFromPath("blocks/" + path);
         let blockInfo = JSON.parse(text);
         let textures = {};
+        console.log(blockInfo);
         let ent = Object.entries(blockInfo.textures);
         for (let i = 0; i < Object.entries(blockInfo.textures).length; i++) {
             let name = ent[i][0];
             let path = ent[i][1];
-            // console.log(name);
             textures[name] = await Texture.loadTexture("textures/" + path); //TODO fix as any
             // console.log( (textures as any)[name]);
         }

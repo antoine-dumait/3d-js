@@ -7,7 +7,7 @@ export default class Texture{ //todo optimize texture loading by awaiting all te
     
     constructor(name: string, path: string, dataArray: Uint8ClampedArray, width: number, height: number){ //loadTextureType
         this.name = name;
-        this.path = path;
+        this.path = path;        
         this.dataArray = dataArray;
         this.width = width;
         this.height = height;

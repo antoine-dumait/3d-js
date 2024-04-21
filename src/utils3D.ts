@@ -46,8 +46,19 @@ export function showHolderBlock(){
 }
 
 export function placeHolderBlock(){
+    console.log(GLOBAL.holderBlock.pos);
+    console.log(GLOBAL.hitDir);
+    
+    
     if(GLOBAL.hitDir){
-        GLOBAL.WORLD.addBlock(new Block(Vector3D.add(GLOBAL.holderBlock.pos, GLOBAL.hitDir), GLOBAL.currentBlock), GLOBAL.holderBlock.pos.x, GLOBAL.holderBlock.pos.y, GLOBAL.holderBlock.pos.z);
+        let tmp = new Block(Vector3D.add(GLOBAL.holderBlock.pos, GLOBAL.hitDir), GLOBAL.currentBlock);
+        console.log(tmp);
+        console.log(tmp.pos);
+        
+        console.log(GLOBAL.WORLD.blocks);
+        
+        
+        GLOBAL.WORLD.addBlock(tmp, GLOBAL.holderBlock.pos.x, GLOBAL.holderBlock.pos.y, GLOBAL.holderBlock.pos.z);
     }
 }
 
@@ -66,22 +77,20 @@ export function drawBlock(block: Block|null, teint=false){
     const HALF_SCREEN_HEIGHT = SCREEN_HEIGHT/2;
     if(!block)return;
     if(Vector3D.distance(block.pos, GLOBAL.CAMERA.pos) > GLOBAL.renderDistance)return;
+    let blockType = block.blockType;
     block!.faces!.forEach( (face: Face) => {
-        if(!face.isVisible())
-        return;
+        let texture = blockType.getSideTextures(face.type);
+        if(!face.isVisible())return;
         face.triangles.forEach(tri => {  
-            // console.log(...tri.p);
       
             let triTransformed = tri.copy();
             triTransformed.toWorld();
-            // console.log(triTransformed);
             triTransformed.mapToAllPoints((p: Vector3D) => Matrix4x4.multiplyVector(GLOBAL.worldMatrix, p));   
             triTransformed.updateNormal();
 
             let cameraRay = Vector3D.sub(triTransformed.p[0], GLOBAL.CAMERA.pos);
             
             if(Vector3D.dotProduct(triTransformed.normal!, cameraRay) < 0){                 
-                // console.log("in");
                 //world space -> view space
                 GLOBAL.triangleCount ++;
 
@@ -92,12 +101,7 @@ export function drawBlock(block: Block|null, teint=false){
                 //z pointe en face de nous, donc normal au plan est z
     
                 let tris = Triangle.clipPlane(clipPlane, clipPlaneNormal, triViewed);
-                // console.log(tris);
-                
-                // let tris = [triViewed];
-    
                 //projection,  3D -> 2D
-                // console.log(tris);
                 
                 tris!.forEach((tri: Triangle) => {
                     tri.mapToAllPoints((p: Vector3D) => Matrix4x4.multiplyVector(GLOBAL.matrixProjection, p));
@@ -116,18 +120,9 @@ export function drawBlock(block: Block|null, teint=false){
                     tri.t[2].w = 1 / tri.p[2].w;
             
                     //diviser par W pour rester dans espace cartÃ©sien ?? TODO : revoir
-                    tri.p[0] = Vector3D.divide(tri.p[0], tri.p[0].w)
-                    tri.p[1] = Vector3D.divide(tri.p[1], tri.p[1].w)
-                    tri.p[2] = Vector3D.divide(tri.p[2], tri.p[2].w)
-                    
-                    //re inversÃ© X et Y
-                    //flip y for it to point up 
-                    // tri.p[0].x *= -1; 
-                    // tri.p[0].y *= -1; 
-                    // tri.p[1].x *= -1; 
-                    // tri.p[1].y *= -1; 
-                    // tri.p[2].x *= -1; 
-                    // tri.p[2].y *= -1; 
+                    tri.p[0] = Vector3D.divide(tri.p[0], tri.p[0].w);
+                    tri.p[1] = Vector3D.divide(tri.p[1], tri.p[1].w);
+                    tri.p[2] = Vector3D.divide(tri.p[2], tri.p[2].w);
                     
                     //offset into screen
                     tri.p[0] = Vector3D.add(tri.p[0], offsetVector);
@@ -135,16 +130,16 @@ export function drawBlock(block: Block|null, teint=false){
                     tri.p[2] = Vector3D.add(tri.p[2], offsetVector);
                     
                     //scale to screen size
-                    tri.p[0].x *= (HALF_SCREEN_WIDTH / 2); 
-                    tri.p[0].y *= (HALF_SCREEN_HEIGHT / 2); 
-                    tri.p[1].x *= (HALF_SCREEN_WIDTH / 2); 
-                    tri.p[1].y *= (HALF_SCREEN_HEIGHT / 2); 
-                    tri.p[2].x *= (HALF_SCREEN_WIDTH / 2); 
-                    tri.p[2].y *= (HALF_SCREEN_HEIGHT / 2); 
+                    tri.p[0].x *= (HALF_SCREEN_WIDTH ); 
+                    tri.p[0].y *= (HALF_SCREEN_HEIGHT); 
+                    tri.p[1].x *= (HALF_SCREEN_WIDTH ); 
+                    tri.p[1].y *= (HALF_SCREEN_HEIGHT); 
+                    tri.p[2].x *= (HALF_SCREEN_WIDTH ); 
+                    tri.p[2].y *= (HALF_SCREEN_HEIGHT); 
 
-                    let triProjected = tri;
+                    const triProjected = tri;
 
-                    let triangleQueue = [triProjected];
+                    const triangleQueue = [triProjected];
                     let newTrianglesCount = 1;
 
                     for(let i=0; i<4; i++){
@@ -174,8 +169,7 @@ export function drawBlock(block: Block|null, teint=false){
                     
                     triangleQueue.forEach((tri: Triangle) => {
                         
-                        SCREEN.drawTexturedTriangle(tri, tri.aux.block.blockType.getSideTextures(tri.aux.type), teint);
-                            //todo contniue implémenter triagnleofblock, de maniere a avoir face coté haut et bas
+                        SCREEN.drawTexturedTriangle(tri, texture, teint);
                     });
                 });
             }

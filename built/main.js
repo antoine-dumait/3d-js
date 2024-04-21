@@ -27,6 +27,7 @@ function update(timeStamp) {
     GLOBAL.UI.updateFPSCounter(GLOBAL.deltaTimeStamp);
     GLOBAL.UI.updateTriangleCount();
     GLOBAL.UI.updatePaintCallCount();
+    GLOBAL.UI.updateXYZShower();
     matrixCameraRotation = Matrix4x4.rotationX(CAMERA.pitch);
     matrixCameraRotation = Matrix4x4.multiplyMatrix(matrixCameraRotation, Matrix4x4.rotationY(CAMERA.yaw));
     CAMERA.lookDirection = Matrix4x4.multiplyVector(matrixCameraRotation, target);

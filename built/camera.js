@@ -22,11 +22,12 @@ export default class Camera {
     updateAngles(x, y) {
         let sensi = 500;
         this.yaw = (this.yaw - x / sensi); //TODO: sus
-        this.pitch = (this.pitch - y / sensi) % (Math.PI);
+        this.pitch = Math.max(-(Math.PI / 2) + 0.3, Math.min(Math.PI / 2 - 0.3, (this.pitch - y / sensi))); //pas bien
+        // console.log(this.pitch);
     }
     updateKeys(c) {
         let changePosition = (value, sign) => {
-            return (value + (this.movementSpeed * sign) % (2 * Math.PI));
+            return (value + (this.movementSpeed * sign));
         };
         if (c.isDown("o")) {
             this.pos.y = changePosition(this.pos.y, +1);
