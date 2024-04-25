@@ -42,8 +42,6 @@ function update(timeStamp: number){
     GLOBAL.matrixView = Matrix4x4.quickInverse(matrixCamera);
     WORLD.draw();
     drawBlock(GLOBAL.holderBlock, true);
-    drawLine(100, 100, 100, 200, 200, 100, 0, 0, 255);
-    // SCREEN.drawTexturedTriangle(new Triangle([new Vector3D(0, 0, 1), new Vector3D(0,200,1), new Vector3D(200, 200, 1)]), BlockType.blockTypes[1].textures.sides);
     SCREEN.flushFrame();
     // console.log("updated");
     GLOBAL.deltaTimeStamp = timeStamp - prevTimeStamp;

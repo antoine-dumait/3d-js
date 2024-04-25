@@ -28,6 +28,17 @@
         outline: rgb(161, 161, 161) 2px solid;
     }
 
+    .symbol img{
+        font-weight: bolder;
+        color: rgb(204, 6, 6);
+        background-color: rgb(238, 231, 195);
+        border: solid 1px transparent;
+        border-radius: 5px;
+        /* width: 0.7em; */
+        margin-bottom: 8px;
+        outline: rgb(161, 161, 161) 2px solid;
+    }
+
     .symbol a:not(:first-child){
         font-weight: 600;
         margin-left: 5px;
@@ -50,24 +61,24 @@
         <p id="paint_call_count" style="margin: 0;"></p>
         <p id="xyz" style="margin: 0;"></p>
     </div>
-    <div id="main" style="display: flex; justify-content: space-between; height: 100%;">
+    <div id="main" style="display: block; justify-content: space-between; height: 100%;">
         <div id="screen">
             <div id="hotbar" style="position: absolute; left:40%; bottom: calc(3em + 9px); display: flex; flex-direction: row;"></div>
             <canvas class="canvas" id="canvas"></canvas>
         </div>
-        <div id="sidebar" style="font-family: 'Courier New', Courier, monospace; background-color: rgb(35, 35, 35);">
-            <button style="width: 3em; height: 3em; color: white; left: -15px; background-color: rgb(35, 35, 35); position: relative; border: 5px solid rgb(35, 35, 35); border-radius: 5px;"
+        <div id="sidebar" style="height: 100%; position: absolute; right: 0; top: 0; width: 20em; font-family: 'Courier New', Courier, monospace; background-color: rgb(35, 35, 35);">
+            <button style="width: 3em; height: 3em; color: white; left: -15px; background-color: rgb(35, 35, 35); position: absolute; border: 5px solid rgb(35, 35, 35); border-radius: 5px;"
             onclick="
             let isHidden = this.textContent == '>';
             this.textContent = (isHidden ? '<' : '>');
-            this.style.left = isHidden ? '0' : '-15px';
+            this.style.right = isHidden ? '0' : '';
+            this.style.left = isHidden ? '' : '-15px';
             let sec = document.getElementById('secondary');
             sec.style.display = (isHidden ? 'none' : 'block');
             let sidebar = document.getElementById('sidebar');
-            console.log(sidebar);
             sidebar.style.backgroundColor = (isHidden ? 'transparent' : 'rgb(35, 35, 35)');
             ">></button>
-            <div id="secondary" style="display: block;">
+            <div id="secondary" style="display: block; position: relative; top: 3em;">
                 <div id="readme" style="position: relative; top: -2em; padding: 0 5px 0 15px; color: white;">
                     <p>
                         3D-JS is an attempt to write a software renderer in JS and using it to build a Minecraft like "game".
@@ -82,6 +93,9 @@
                 <p style="text-align: center; font-weight: bold; color: white;">Controls :</p>
                 <div id="controls" style="margin-left: 5px; display: flex; justify-content: space-evenly;">
                     <div>
+                        <div class="symbol"><a>LMC</a><a>Place block</a></div>
+                        <div class="symbol"><a>RMC</a><a>Remove block</a></div>
+                        <div class="symbol"><a>Mouse</a><a>Move camera</a></div>
                         <div class="symbol"><a>Z</a><a>Forward</a></div>
                         <div class="symbol"><a>Q</a><a>Left</a></div>
                         <div class="symbol"><a>S</a><a>Backward</a></div>
