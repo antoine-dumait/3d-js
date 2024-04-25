@@ -99,22 +99,6 @@ export class World{
         return null;
     }
 
-    //TODO: implement
-    // updateHolderBlock(camera: Camera){
-    //     let hit = this.rayCastHit(camera.pos, camera.lookDirection);
-    //     if(hit){
-    //         let tmpPos
-    //         let pos = Vector3D.add(hit.block.pos, hit.hitFrom);
-    //         let holderBlock = new Block(pos, currentBlock);
-    //         holderBlock.pos.floor();
-    //         let triListe = holderBlock.getTriangles();
-    //         for(let i=0; i<triListe.length; i++){
-    //             mesh.tris.pop();
-    //         }
-    //         mesh.tris.push(...triListe);
-    //     }
-    // }
-
     rayCastHit(pos: Vector3D, target: Vector3D){
         let currentX = Math.floor(pos.x);
         let currentY = Math.floor(pos.y);

@@ -1,3 +1,4 @@
 grass
 stone
 plank
+dirt

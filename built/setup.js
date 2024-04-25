@@ -6,7 +6,7 @@ import { changeSelectedBlock, takeScreenshot } from "./utils.js";
 import Vector3D from "./vec3.js";
 import { Block, BlockType, World } from "./world.js";
 import { UI } from "./ui.js";
-import { placeHolderBlock } from "./utils3D.js";
+import { placeHolderBlock, removeBlock } from "./utils3D.js";
 // const SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
 const SCREEN_WIDTH = 1280, SCREEN_HEIGHT = 720;
 const N_PIXELS = SCREEN_WIDTH * SCREEN_HEIGHT;
@@ -27,11 +27,16 @@ function sleep(ms) {
 }
 // await sleep(1000);
 const hotbar = document.getElementById("hotbar");
+let firstSlot = true;
 BlockType.blockTypes.forEach(blockType => {
     let slot = document.createElement("div");
     slot.id = blockType.name;
     slot.classList.add("hotbar_slot");
     slot.style.backgroundImage = "url('" + blockType.textures.sides.path + "')";
+    if (firstSlot) {
+        slot.classList.add("choosen_block");
+        firstSlot = false;
+    }
     hotbar.appendChild(slot);
 });
 // console.log("Block Types:");
@@ -41,7 +46,10 @@ BlockType.blockTypes.forEach(blockType => {
 GLOBAL.WORLD_SIZE = 100;
 GLOBAL.WORLD_ORIGIN = new Vector3D(Math.floor(GLOBAL.WORLD_SIZE / 2), Math.floor(GLOBAL.WORLD_SIZE / 2), Math.floor(GLOBAL.WORLD_SIZE / 2));
 GLOBAL.WORLD = new World(GLOBAL.WORLD_SIZE, GLOBAL.WORLD_ORIGIN);
-const blockToGenerate = [BlockType.blockTypesDict.stone, BlockType.blockTypesDict.grass];
+const blockToGenerate = [BlockType.blockTypesDict.dirt,
+    BlockType.blockTypesDict.grass,
+    BlockType.blockTypesDict.grass,
+    BlockType.blockTypesDict.grass];
 GLOBAL.WORLD.generateBlocks(40, blockToGenerate, 1); //TODO: fix 50 crashing du to Triangle.isVisble not testing value
 console.log("Blocks:", GLOBAL.WORLD.blocks);
 GLOBAL.movementSpeed = 0.01;
@@ -66,7 +74,9 @@ document.addEventListener("pointerlockchange", () => {
     GLOBAL.CAMERA.locked = Boolean(document.pointerLockElement);
 });
 document.addEventListener("wheel", (e) => {
-    changeSelectedBlock(-Math.sign(e.deltaY));
+    if (Math.abs(e.deltaY) > 5) {
+        changeSelectedBlock(-Math.sign(e.deltaY));
+    }
 });
 document.body.addEventListener('mousemove', (e) => {
     if (GLOBAL.CAMERA.locked) {
@@ -78,6 +88,11 @@ document.body.addEventListener('click', (e) => {
     // let forward = Vector3D.add(GLOBAL.CAMERA.pos, GLOBAL.CAMERA.lookDirection);
     // WORLD.placeBlock(); //TODO: implement
     placeHolderBlock();
+});
+document.addEventListener('mousedown', (e) => {
+    if (e.button == 2) {
+        removeBlock();
+    }
 });
 document.body.addEventListener('keydown', (e) => {
     if (e.key == "o") {

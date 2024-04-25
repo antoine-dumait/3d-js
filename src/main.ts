@@ -3,7 +3,8 @@ import Vector3D from "./vec3.js";
 import Matrix4x4 from "./matrix4.js";
 import Camera from "./camera.js";
 import { World, BlockType, Block, Face, TriangleOfBlock } from "./world.js";
-import { drawBlock, showHolderBlock } from "./utils3D.js";
+import { drawBlock, drawLine, showHolderBlock } from "./utils3D.js";
+import Triangle from "./triangle.js";
 
 const CAMERA: Camera = GLOBAL.CAMERA;
 const WORLD: World = GLOBAL.WORLD;
@@ -41,6 +42,7 @@ function update(timeStamp: number){
     GLOBAL.matrixView = Matrix4x4.quickInverse(matrixCamera);
     WORLD.draw();
     drawBlock(GLOBAL.holderBlock, true);
+    drawLine(100, 100, 100, 200, 200, 100, 0, 0, 255);
     // SCREEN.drawTexturedTriangle(new Triangle([new Vector3D(0, 0, 1), new Vector3D(0,200,1), new Vector3D(200, 200, 1)]), BlockType.blockTypes[1].textures.sides);
     SCREEN.flushFrame();
     // console.log("updated");

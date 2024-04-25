@@ -1,7 +1,7 @@
 import { GLOBAL, SCREEN } from "./setup.js";
 import Vector3D from "./vec3.js";
 import Matrix4x4 from "./matrix4.js";
-import { drawBlock, showHolderBlock } from "./utils3D.js";
+import { drawBlock, drawLine, showHolderBlock } from "./utils3D.js";
 const CAMERA = GLOBAL.CAMERA;
 const WORLD = GLOBAL.WORLD;
 const zOffset = 0;
@@ -36,6 +36,7 @@ function update(timeStamp) {
     GLOBAL.matrixView = Matrix4x4.quickInverse(matrixCamera);
     WORLD.draw();
     drawBlock(GLOBAL.holderBlock, true);
+    drawLine(100, 100, 100, 200, 200, 100, 0, 0, 255);
     // SCREEN.drawTexturedTriangle(new Triangle([new Vector3D(0, 0, 1), new Vector3D(0,200,1), new Vector3D(200, 200, 1)]), BlockType.blockTypes[1].textures.sides);
     SCREEN.flushFrame();
     // console.log("updated");

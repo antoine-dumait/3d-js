@@ -1,6 +1,7 @@
 import { GLOBAL, SCREEN_HEIGHT } from "./setup.js";
 import Texture from "./texture.js";
 import Triangle from "./triangle.js";
+import { drawLine } from "./utils3D.js";
 
 type Uint8 = number; //integer between 0 and 255
 
@@ -53,7 +54,7 @@ export default class MyScreen{
         this.zBuffer.set(this.cleanZBuffer);
     }
 
-    paintPixelBuffer(index: number, w: number, r: Uint8, g: Uint8, b: Uint8){
+    paintPixelBuffer(index: number, r: Uint8, g: Uint8, b: Uint8){
             GLOBAL.paintCallCount++;
             this.frameBuffer.data[index] = r;
             this.frameBuffer.data[index + 1] = g;
@@ -61,12 +62,9 @@ export default class MyScreen{
     }    
 
     drawTexturedTriangle(tri: Triangle, texture: Texture, teint=false){
-        // console.count();
-        // console.log("draw");
         
-        // console.log("drawTexturedTriangle");
-        
-            // triangleCount++; TODO: reimplement tri count
+            let textWidth = texture.width;
+            let textDataArr = texture.dataArray;
 
             let P1 = tri.p[0];
             let P2 = tri.p[1];
@@ -133,60 +131,79 @@ export default class MyScreen{
                 v2step = dv2 / absDY2;
                 w2step = dw2 / absDY2;
             } 
-            
+        
             if(dy1){
-                // console.log(P1, P2, P3);
+                let aXstepTmp = aXstep;
+                let u1stepTmp = u1step;
+                let v1stepTmp = v1step;
+                let w1stepTmp = w1step;
                 
-                for (let i = P1.y; i<=P2.y; i++){
-                    const deltaY = i - P1.y;
-                    let aX = Math.floor(P1.x + deltaY * aXstep);
-                    let bX = Math.floor(P1.x + deltaY * bXstep);
-        
-                    let startU = T1.u + deltaY * u1step;
-                    let startV = T1.v + deltaY * v1step;
-                    let startW = T1.w + deltaY * w1step;
-                    
-                    let endU = T1.u + deltaY * u2step;
-                    let endV = T1.v + deltaY * v2step;
-                    let endW = T1.w + deltaY * w2step;
+                let bXstepTmp = bXstep
+                let u2stepTmp = u2step
+                let v2stepTmp = v2step
+                let w2stepTmp = w2step
 
-                    if (bX < aX){ //bx doit etre a droite et ax a gauche, traversÃ© horizontale
-                        [aX, bX] = [bX, aX];
-                        [startU, endU] = [endU, startU];
-                        [startV, endV] = [endV, startV];
-                        [startW, endW] = [endW, startW];
-                    } 
-        
+                if (bXstep < aXstep){ //bx doit etre a droite et ax a gauche, traverse horizontale
+                    [aXstepTmp, bXstepTmp] = [bXstepTmp, aXstepTmp];
+                    [u1stepTmp, u2stepTmp] = [u2stepTmp, u1stepTmp];
+                    [v1stepTmp, v2stepTmp] = [v2stepTmp, v1stepTmp];
+                    [w1stepTmp, w2stepTmp] = [w2stepTmp, w1stepTmp];
+                } 
+
+                let deltaY1 = 0;
+                let startU = T1.u;
+                let startV = T1.v;
+                let startW = T1.w;
+                                            
+                let endU = T1.u;
+                let endV = T1.v;
+                let endW = T1.w;
+    
+                let aX;
+                let bX;
+    
+                for (let i = P1.y; i<=P2.y; i++, 
+                    deltaY1++,
+                    startU += u1stepTmp,
+                    startV += v1stepTmp,
+                    startW += w1stepTmp,
+                    endU += u2stepTmp,
+                    endV += v2stepTmp,
+                    endW += w2stepTmp
+                    ){
+    
+                    aX = Math.floor(P1.x + deltaY1 * aXstepTmp);
+                    bX = Math.floor(P1.x + deltaY1 * bXstepTmp);
+    
+
                     const tStep =  1 / (bX - aX);
-                    let indexY = i * this.width;
-                    let u = startU;
-                    let v = startV;
+                    let indexY = i * this.width + aX;
+                    let u = startU * textWidth;
+                    let v = startV * textWidth;
                     let w = startW;
-                    let uStep = tStep*(endU - startU);
-                    let vStep = tStep*(endV - startV);
+                    let uStep = tStep*(endU - startU) * textWidth;
+                    let vStep = tStep*(endV - startV) * textWidth;
                     let wStep = tStep*(endW - startW);
-
+                    let indexPaint = indexY*4;
                     // let tmpIndex = indexY * 4;
                     // this.frameBuffer.data.set(tmpIndex, texture.dataArray.subarray())
-                    for (let j=aX; j < bX; j++){
-                        let index2 = (indexY + j)*4;
-                        if(this.zBuffer[indexY + j] < w){
-                            this.zBuffer[indexY + j] = w;
-                            let x = Math.floor(u/w * texture.width);
-                            let y = Math.floor(v/w * texture.width);
-                            let index = (y * texture.width + x) * 4; //TODO: optimize
-                            //TODO: fix white line at bottom by switching array+3 to 255
+                    for (let j=aX; j < bX; j++, 
+                        u+=uStep, 
+                        v+=vStep, 
+                        w+=wStep, 
+                        indexY++, 
+                        indexPaint+=4){
+                        if(this.zBuffer[indexY] < w){
+                            this.zBuffer[indexY] = w;
+                            let indexText = (Math.floor(v/w)*textWidth*4  + Math.floor(u/w)*4); //TODO: optimize
+    
                             if(!teint){
-                                this.paintPixelBuffer(index2 , w, texture.dataArray[index], texture.dataArray[index+1], texture.dataArray[index+2]);
-
+                                this.paintPixelBuffer(indexPaint, textDataArr[indexText], textDataArr[indexText+1], textDataArr[indexText+2]);
+    
                             } else {
-                                this.paintPixelBuffer(index2 , w, Math.floor(texture.dataArray[index]/4*3), Math.floor(texture.dataArray[index+1]/4*3), Math.floor((texture.dataArray[index+2]+150)/2)); //color mixing block color and blue
+                                this.paintPixelBuffer(indexPaint, Math.floor(textDataArr[indexText]/4*3), Math.floor(textDataArr[indexText+1]/4*3), Math.floor((textDataArr[indexText+2]+150)/2)); //color mixing block color and blue
                             }
-                            // t += tStep;
                         }
-                            u += uStep;
-                            v += vStep;
-                            w += wStep;
                     }
                 }
             }
@@ -248,16 +265,16 @@ export default class MyScreen{
                     for (let j=aX; j < bX; j++){
                         if(this.zBuffer[indexY + j] < w){
                             this.zBuffer[indexY + j] = w;
-                            let x = Math.floor(u/w * texture.width);
-                            let y = Math.floor(v/w * texture.width);
+                            let x = Math.floor(u/w * textWidth);
+                            let y = Math.floor(v/w * textWidth);
                             let index2 = (indexY + j)*4;
-                            let index = (y * texture.width + x) * 4; //TODO: optimize
+                            let index = (y * textWidth + x) * 4; //TODO: optimize
                             //TODO: fix white line at bottom by switching array+3 to 255
                            if(!teint){
-                                this.paintPixelBuffer(index2 , w, texture.dataArray[index], texture.dataArray[index+1], texture.dataArray[index+2]);
+                                this.paintPixelBuffer(index2 , textDataArr[index], textDataArr[index+1], textDataArr[index+2]);
 
                             } else {
-                                this.paintPixelBuffer(index2 , w, Math.floor(texture.dataArray[index]/4*3), Math.floor(texture.dataArray[index+1]/4*3), Math.floor((texture.dataArray[index+2]+150)/2)); //color mixing block color and blue
+                                this.paintPixelBuffer(index2 , Math.floor(textDataArr[index]/4*3), Math.floor(textDataArr[index+1]/4*3), Math.floor((textDataArr[index+2]+150)/2)); //color mixing block color and blue
                             }                            
                             
                             
@@ -268,5 +285,23 @@ export default class MyScreen{
                     }
                 }
             }    
+    }
+
+    drawWireframeTriangle(tri: Triangle){
+        let P1 = tri.p[0];
+        let P2 = tri.p[1];
+        let P3 = tri.p[2];
+
+        P1.x = Math.floor(P1.x);
+        P1.y = Math.floor(P1.y);
+
+        P2.x = Math.floor(P2.x);
+        P2.y = Math.floor(P2.y);
+
+        P3.x = Math.floor(P3.x);
+        P3.y = Math.floor(P3.y);
+        drawLine(P1.x, P1.y, P1.w, P2.x, P2.y, P2.w, 255, 0, 0);
+        drawLine(P2.x, P2.y, P2.w, P3.x, P3.y, P3.w, 0, 255, 0);
+        drawLine(P3.x, P3.y, P3.w, P1.x, P1.y, P1.w, 0, 0, 255);
     }
 }

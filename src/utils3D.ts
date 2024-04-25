@@ -52,13 +52,13 @@ export function placeHolderBlock(){
     
     if(GLOBAL.hitDir){
         let tmp = new Block(Vector3D.add(GLOBAL.holderBlock.pos, GLOBAL.hitDir), GLOBAL.currentBlock);
-        console.log(tmp);
-        console.log(tmp.pos);
+        // console.log(tmp);
+        // console.log(tmp.pos);
         
-        console.log(GLOBAL.WORLD.blocks);
+        // console.log(GLOBAL.WORLD.blocks);
         
         
-        GLOBAL.WORLD.addBlock(tmp, GLOBAL.holderBlock.pos.x, GLOBAL.holderBlock.pos.y, GLOBAL.holderBlock.pos.z);
+        GLOBAL.WORLD.addBlock(tmp, tmp.pos.x, tmp.pos.y, tmp.pos.z);
     }
 }
 
@@ -170,9 +170,88 @@ export function drawBlock(block: Block|null, teint=false){
                     triangleQueue.forEach((tri: Triangle) => {
                         
                         SCREEN.drawTexturedTriangle(tri, texture, teint);
+                        // SCREEN.drawWireframeTriangle(tri);
                     });
                 });
             }
             });
         });
+}
+
+export function removeBlock(){
+    
+    if(GLOBAL.hitDir){ //for first click on canvas, to lock view
+        let p = GLOBAL.holderBlock.pos;
+        console.log(p);
+        GLOBAL.WORLD.blocks[p.y][p.z][p.x] = null;
+        GLOBAL.holderBlock.pos = new Vector3D();
+    }
+}
+
+export function drawLine(
+    x1: number, y1: number, w1: number,  
+    x2: number, y2: number, w2: number,
+    r: number, g: number, b: number){
+    let index = (y1 * SCREEN_WIDTH + x1)*4;
+    if(SCREEN.zBuffer[index]>w1){return;} //choix arbitraire, w1 décide de toute la ligne
+    SCREEN.zBuffer[index] = w1;
+    let dx = x2 - x1; 
+    let dy = y2 - y1;
+    let incX = Math.sign(dx);
+    let incY = Math.sign(dy);
+    dx = Math.abs(dx);
+    dy = Math.abs(dy);
+    if(dy == 0){ //horizontal line
+        let indexStep = incX*4;
+
+        for(let x=x1; x!=x2 + incX; x += incX){ //pas <= car descend ou monte donc !=
+            SCREEN.paintPixelBuffer(index, r, g, b);
+            index += indexStep; 
+        }
+    }
+
+    else if(dx == 0){ //vertical line
+        let indexStep = SCREEN_WIDTH*incY*4;
+
+        for(let y=y1; y!=y2 + incY; y += incY){
+            // SCREEN.paintPixelBuffer(index, 200, 0, 0);
+            SCREEN.paintPixelBuffer(index, r, g, b);
+            index += indexStep; 
+        }
+    }
+    else if(dx >= dy){ //ligne + horizontale
+
+        let slope = 2 * dy;
+        let error = -dx;
+        let errorInc = -2 * dx;
+        let indexStep = SCREEN_WIDTH*incY*4;
+
+        for(let x=x1; x!=x2 + incX; x += incX){
+            SCREEN.paintPixelBuffer(index, r, g, b);
+
+            index += incX*4; 
+            error += slope;
+            if(error >= 0){
+                index += indexStep;
+                error += errorInc;
+            }
+        }
+    }
+
+    else {
+        let slope = 2 * dx;
+        let error = -dy;
+        let errorInc = -2 * dy;        
+        let indexStep = SCREEN_WIDTH*incY*4;
+        for(let y=y1; y!=y2 + incY; y += incY){
+            SCREEN.paintPixelBuffer(index, r, g, b);
+
+            index += indexStep; 
+            error += slope;
+            if(error >= 0){
+                index += incX*4;
+                error += errorInc;
+            }
+        }
+    }
 }
