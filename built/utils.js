@@ -24,11 +24,9 @@ export function changeSelectedBlock(index) {
     currentSlotBarHTML.classList.remove("choosen_block");
     GLOBAL.currentIndexHotbar = Math.max(0, Math.min(BlockType.blockTypes.length - 1, GLOBAL.currentIndexHotbar + index)); //y is down, down is left
     GLOBAL.currentBlock = BlockType.blockTypes[GLOBAL.currentIndexHotbar];
-    // GLOBAL
     GLOBAL.holderBlock.blockType = GLOBAL.currentBlock;
     currentSlotBarHTML = document.getElementById(GLOBAL.currentBlock.name);
     currentSlotBarHTML.classList.add("choosen_block");
-    // console.log(GLOBAL.currentBlock);
 }
 export function copy(aObject) {
     // Prevent undefined objects

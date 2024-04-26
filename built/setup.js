@@ -83,14 +83,7 @@ document.body.addEventListener('mousemove', (e) => {
         GLOBAL.CAMERA.updateAngles(e.movementX, e.movementY);
     }
 });
-// document.body.addEventListener('click', (e) => {
-//     document.body.requestPointerLock();
-//     // let forward = Vector3D.add(GLOBAL.CAMERA.pos, GLOBAL.CAMERA.lookDirection);
-//     // WORLD.placeBlock(); //TODO: implement
-//     placeHolderBlock();    
-// });
 document.addEventListener('mousedown', (e) => {
-    console.log(e.button);
     if (e.button == 2) {
         removeBlock();
     }
@@ -107,15 +100,12 @@ document.body.addEventListener('keydown', (e) => {
 GLOBAL.borderHautY = 0;
 GLOBAL.planHaut = new Vector3D(0, GLOBAL.borderHautY, 0);
 GLOBAL.normalPlanHaut = new Vector3D(0, 1, 0);
-// ctx.moveTo(0, borderHautY); ctx.lineTo(cnvWidth, borderHautY);
 GLOBAL.borderBasY = SCREEN_HEIGHT - 0;
 GLOBAL.planBas = new Vector3D(0, GLOBAL.borderBasY, 0);
 GLOBAL.normalPlanBas = new Vector3D(0, -1, 0);
-// ctx.moveTo(0, borderBasY); ctx.lineTo(cnvWidth, borderBasY);
 GLOBAL.borderGaucheX = 0;
 GLOBAL.planGauche = new Vector3D(GLOBAL.borderGaucheX, 0, 0);
 GLOBAL.normalPlanGauche = new Vector3D(1, 0, 0);
-// ctx.moveTo(borderGaucheX, 0); ctx.lineTo(borderGaucheX, cnvHeight);
 GLOBAL.borderDroiteX = SCREEN_WIDTH - 0;
 GLOBAL.planDroite = new Vector3D(GLOBAL.borderDroiteX, 0, 0);
 GLOBAL.normalPlanDroite = new Vector3D(-1, 0, 0);

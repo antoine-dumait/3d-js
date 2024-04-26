@@ -4,46 +4,17 @@ import Triangle from "./triangle.js";
 import Vector3D from "./vec3.js";
 import { Block } from "./world.js";
 export function showHolderBlock() {
-    // console.log(GLOBAL.CAMERA.pos);
-    // console.log(GLOBAL.CAMERA.lookDirection);
     let hit = GLOBAL.WORLD.rayCastHit(GLOBAL.CAMERA.pos, GLOBAL.CAMERA.lookDirection);
-    // console.log(hitBlock);
-    // GLOBAL.WORLD.addBlock(new Block(
-    //     new Vector3D(GLOBAL.holderBlock.pos.x, GLOBAL.holderBlock.pos.y, GLOBAL.holderBlock.pos.z), BlockType.blockTypes[0]), 
-    //     GLOBAL.holderBlock.pos.x, GLOBAL.holderBlock.pos.y, GLOBAL.holderBlock.pos.z);
-    // GLOBAL.WORLD.blocks[GLOBAL.holderBlock.pos.y][GLOBAL.holderBlock.pos.z][GLOBAL.holderBlock.pos.x] = null;
     if (hit) {
         GLOBAL.hitDir = hit.dir;
         let hitBlock = hit.block;
-        // console.log(dir);
-        // console.log(hitBlock.pos);
-        // console.log(GLOBAL.holderBlock.pos);
-        // let tmpPos = GLOBAL.holderBlock.pos;
-        // let tmpBlock = GLOBAL.WORLD.backupBlocks[tmpPos.y][tmpPos.z][tmpPos.x];
-        // let bType;
-        // console.log(tmpPos);
-        // console.log(tmpBlock);
-        // if(tmpBlock){
-        //     // tmpBlock = tmpBlock.copy();
-        // } else {
-        //     tmpBlock = null;
-        // }
-        // console.log(dir);
-        // console.log(bType);
         GLOBAL.holderBlock.pos = hitBlock.pos;
         GLOBAL.holderBlock.blockType = hitBlock.blockType;
-        // GLOBAL.holderBlock.pos  = Vector3D.add(hitBlock.pos, dir);
-        // GLOBAL.WORLD.addBlock(GLOBAL.holderBlock, GLOBAL.holderBlock.pos.x, GLOBAL.holderBlock.pos.y, GLOBAL.holderBlock.pos.z);
     }
 }
 export function placeHolderBlock() {
-    console.log(GLOBAL.holderBlock.pos);
-    console.log(GLOBAL.hitDir);
     if (GLOBAL.hitDir) {
         let tmp = new Block(Vector3D.add(GLOBAL.holderBlock.pos, GLOBAL.hitDir), GLOBAL.currentBlock);
-        // console.log(tmp);
-        // console.log(tmp.pos);
-        // console.log(GLOBAL.WORLD.blocks);
         GLOBAL.WORLD.addBlock(tmp, tmp.pos.x, tmp.pos.y, tmp.pos.z);
     }
 }
@@ -147,7 +118,6 @@ export function drawBlock(block, teint = false) {
 export function removeBlock() {
     if (GLOBAL.hitDir) { //for first click on canvas, to lock view
         let p = GLOBAL.holderBlock.pos;
-        console.log(p);
         GLOBAL.WORLD.blocks[p.y][p.z][p.x] = null;
         GLOBAL.holderBlock.pos = new Vector3D();
     }
