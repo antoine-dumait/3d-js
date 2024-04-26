@@ -83,15 +83,20 @@ document.body.addEventListener('mousemove', (e) => {
         GLOBAL.CAMERA.updateAngles(e.movementX, e.movementY);
     }
 });
-document.body.addEventListener('click', (e) => {
-    document.body.requestPointerLock();
-    // let forward = Vector3D.add(GLOBAL.CAMERA.pos, GLOBAL.CAMERA.lookDirection);
-    // WORLD.placeBlock(); //TODO: implement
-    placeHolderBlock();
-});
+// document.body.addEventListener('click', (e) => {
+//     document.body.requestPointerLock();
+//     // let forward = Vector3D.add(GLOBAL.CAMERA.pos, GLOBAL.CAMERA.lookDirection);
+//     // WORLD.placeBlock(); //TODO: implement
+//     placeHolderBlock();    
+// });
 document.addEventListener('mousedown', (e) => {
+    console.log(e.button);
     if (e.button == 2) {
         removeBlock();
+    }
+    else if (e.button == 0) {
+        placeHolderBlock();
+        document.body.requestPointerLock();
     }
 });
 document.body.addEventListener('keydown', (e) => {

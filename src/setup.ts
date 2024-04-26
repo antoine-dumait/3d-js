@@ -102,17 +102,22 @@ document.body.addEventListener('mousemove', (e) => { //fonction anonyme to keep 
     }
 });
 
-document.body.addEventListener('click', (e) => {
-    document.body.requestPointerLock();
-    // let forward = Vector3D.add(GLOBAL.CAMERA.pos, GLOBAL.CAMERA.lookDirection);
-    // WORLD.placeBlock(); //TODO: implement
+// document.body.addEventListener('click', (e) => {
+//     document.body.requestPointerLock();
+//     // let forward = Vector3D.add(GLOBAL.CAMERA.pos, GLOBAL.CAMERA.lookDirection);
+//     // WORLD.placeBlock(); //TODO: implement
     
-    placeHolderBlock();    
-});
+//     placeHolderBlock();    
+// });
 
 document.addEventListener('mousedown', (e) => {
+    console.log(e.button);
+    
     if(e.button == 2){
         removeBlock();
+    } else if(e.button == 0){
+        placeHolderBlock();    
+        document.body.requestPointerLock();
     }
 
 });
