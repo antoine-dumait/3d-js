@@ -22,25 +22,24 @@ export default class Camera {
     updateAngles(x, y) {
         let sensi = 500;
         this.yaw = (this.yaw - x / sensi); //TODO: sus
-        this.pitch = Math.max(-(Math.PI / 2) + 0.3, Math.min(Math.PI / 2 - 0.3, (this.pitch - y / sensi))); //pas bien
-        // console.log(this.pitch);
+        this.pitch = Math.max(-(Math.PI / 2) + 0.3, Math.min(Math.PI / 2 - 0.3, (this.pitch - y / sensi))); //pas bien        
     }
     updateKeys(c) {
         let changePosition = (value, sign) => {
             return (value + (this.movementSpeed * sign));
         };
-        if (c.isDown("o")) {
-            this.pos.y = changePosition(this.pos.y, +1);
-        }
-        if (c.isDown("l")) {
-            this.pos.y = changePosition(this.pos.y, -1);
-        }
-        if (c.isDown("k")) {
-            this.pos.x = changePosition(this.pos.x, -1);
-        }
-        if (c.isDown("m")) {
-            this.pos.x = changePosition(this.pos.x, +1);
-        }
+        // if(c.isDown("o")){
+        //     this.pos.y = changePosition(this.pos.y, +1);
+        // }
+        // if(c.isDown("l")){
+        //     this.pos.y = changePosition(this.pos.y, -1);
+        // }
+        // if(c.isDown("k")){
+        //     this.pos.x = changePosition(this.pos.x, -1);
+        // }
+        // if(c.isDown("m")){
+        //     this.pos.x = changePosition(this.pos.x, +1);
+        // }
         let forward = Vector3D.multiply(this.lookDirection, this.movementSpeed);
         let forwardWithoutY = forward;
         forwardWithoutY.y = 0;

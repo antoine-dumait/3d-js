@@ -9,10 +9,10 @@ export default class Controller{
             "ArrowDown" : false,
             "ArrowRight" : false,
 
-            "o" : false,
-            "k" : false,
-            "l" : false,
-            "m" : false,
+            // "o" : false,
+            // "k" : false,
+            // "l" : false,
+            // "m" : false,
 
             "z" : false,
             "q" : false,

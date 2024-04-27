@@ -17,6 +17,12 @@ GLOBAL.test = false;
 let prevTimeStamp = 0;
 GLOBAL.deltaTimeStamp = 0;
 function update(timeStamp) {
+    // let blockUnder = WORLD.getBlock(Vector3D.add(Vector3D.floor(GLOBAL.CAMERA.pos), new Vector3D(0,1,0)));
+    // if(blockUnder == null){
+    //     CAMERA.pos = Vector3D.sub(CAMERA.pos, new Vector3D(0,-0.3,0));
+    // } else{
+    //     // console.log(blockUnder);
+    // }
     // console.countReset();
     showHolderBlock();
     GLOBAL.zero = 0;

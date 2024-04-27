@@ -127,8 +127,8 @@ export function drawBlock(block: Block|null, teint=false){
                     }
                     
                     triangleQueue.forEach((tri: Triangle) => {
-                        
-                        SCREEN.drawTexturedTriangle(tri, texture, teint);
+                        GLOBAL.currentRender(tri, texture, teint);
+                        // SCREEN.drawTexturedTriangle(tri, texture, teint);
                         // SCREEN.drawWireframeTriangle(tri);
                     });
                 });

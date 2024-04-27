@@ -45,6 +45,15 @@ export default class Vector3D{
         return newV;
     }
 
+    static floor(v: Vector3D){
+        return new Vector3D(
+        Math.floor(v.x),
+        Math.floor(v.y),
+        Math.floor(v.z),
+        Math.floor(v.w)
+        );
+    }
+
     static intersectPlane(planePoint: Vector3D, planeNormal: Vector3D, lineStart: Vector3D, lineEnd: Vector3D){
         planeNormal = Vector3D.normalise(planeNormal);
         let planeDP = -Vector3D.dotProduct(planePoint, planeNormal);

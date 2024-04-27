@@ -48,3 +48,10 @@ export function takeScreenshot() {
     a.target = '_blank';
     a.click();
 }
+export function changeRenderMode() {
+    GLOBAL.currentRenderIndex = (GLOBAL.currentRenderIndex + 1) % GLOBAL.renderList.length;
+    GLOBAL.currentRender = GLOBAL.renderList[GLOBAL.currentRenderIndex];
+}
+export function changeRenderDistance(x) {
+    GLOBAL.renderDistance += x;
+}

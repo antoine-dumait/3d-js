@@ -99,6 +99,10 @@ export class World{
         return null;
     }
 
+    getBlock(pos: Vector3D){
+        return this.blocks[pos.y][pos.z][pos.x];
+    }
+
     rayCastHit(pos: Vector3D, target: Vector3D){
         let currentX = Math.floor(pos.x);
         let currentY = Math.floor(pos.y);

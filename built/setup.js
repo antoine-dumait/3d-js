@@ -2,7 +2,7 @@ import MyScreen from "./screen.js";
 import Camera from "./camera.js";
 import Controller from "./controller.js";
 import Matrix4x4 from "./matrix4.js";
-import { changeSelectedBlock, takeScreenshot } from "./utils.js";
+import { changeSelectedBlock, takeScreenshot, changeRenderMode, changeRenderDistance } from "./utils.js";
 import Vector3D from "./vec3.js";
 import { Block, BlockType, World } from "./world.js";
 import { UI } from "./ui.js";
@@ -70,12 +70,15 @@ GLOBAL.currentBlock = BlockType.blockTypes[GLOBAL.currentIndexHotbar];
 GLOBAL.holderBlock = new Block(new Vector3D(0, 0, 0), GLOBAL.currentBlock);
 GLOBAL.hitDir = null;
 GLOBAL.UI = new UI(FPS_counter, triangle_counter, paint_call_counter, XYZ_shower);
+GLOBAL.renderList = [SCREEN.drawTexturedTriangle.bind(SCREEN), SCREEN.drawWireframeTriangle.bind(SCREEN)];
+GLOBAL.currentRenderIndex = 0;
+GLOBAL.currentRender = GLOBAL.renderList[GLOBAL.currentRenderIndex];
 document.addEventListener("pointerlockchange", () => {
     GLOBAL.CAMERA.locked = Boolean(document.pointerLockElement);
 });
 document.addEventListener("wheel", (e) => {
     if (Math.abs(e.deltaY) > 5) {
-        changeSelectedBlock(-Math.sign(e.deltaY));
+        changeSelectedBlock(Math.sign(e.deltaY));
     }
 });
 document.body.addEventListener('mousemove', (e) => {
@@ -93,8 +96,19 @@ document.addEventListener('mousedown', (e) => {
     }
 });
 document.body.addEventListener('keydown', (e) => {
-    if (e.key == "o") {
-        takeScreenshot();
+    switch (e.key) {
+        case "o":
+            takeScreenshot();
+            break;
+        case "r":
+            changeRenderMode();
+            break;
+        case "p":
+            changeRenderDistance(1);
+            break;
+        case "m":
+            changeRenderDistance(-1);
+            break;
     }
 });
 GLOBAL.borderHautY = 0;

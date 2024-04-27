@@ -62,7 +62,7 @@ export default class MyScreen{
     }    
 
     drawTexturedTriangle(tri: Triangle, texture: Texture, teint=false){
-        
+            
             let textWidth = texture.width;
             let textDataArr = texture.dataArray;
 

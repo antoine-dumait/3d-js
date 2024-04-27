@@ -91,6 +91,9 @@ export class World {
         }
         return null;
     }
+    getBlock(pos) {
+        return this.blocks[pos.y][pos.z][pos.x];
+    }
     rayCastHit(pos, target) {
         let currentX = Math.floor(pos.x);
         let currentY = Math.floor(pos.y);
