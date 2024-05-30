@@ -1,5 +1,7 @@
 # 3D-JS
 
+! DEMO AVAILABLE HERE : https://antoine-dumait.github.io/3d-js/ !
+
 3D-JS is an attempt to write a software renderer in JS and using it to build a Minecraft like "game" (more a demo as of right now).
 3D-JS is written completely in vanilla JS (changed to TypeScript recently), meaning no 3D libraries like Three.js or Babylon.js, nor harware acceleration (only uses the CPU).
 Mathematical implementations of 2D or 3D vectors and matrix are also self made and  written directly in JS.
