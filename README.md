@@ -23,6 +23,7 @@ Optimizations in the render pipeline :
 
 TO DO LIST :
 
+ - [ ] Add physic based movement, make sand fall
  - [ ] Separate engine from Minecraft demo implementations.
  - [x] Draw only visible faces
  - [x] Fix inversed coordinate system
@@ -32,7 +33,7 @@ TO DO LIST :
  - [ ] Change language ?
  - [x] Create block load file system
  - [x] More than one texture per block
- - [ ] Right click to delete
+ - [x] Right click to delete
  - [ ] Load texture asynchronously
  - [ ] Add full screen
  
