@@ -6,6 +6,7 @@
 3D-JS is written completely in vanilla JS (changed to TypeScript recently), meaning no 3D libraries like Three.js or Babylon.js, nor harware acceleration (only uses the CPU).
 Mathematical implementations of 2D or 3D vectors and matrix are also self made and  written directly in JS.
 It only uses the context of the canvas available in JS, trying to overcome it's poor performances.
+Meaning, I only get the buffer of the canvas and the renderer calculates himself how to draw the triangles pixel by pixel.
 
 Currently it's able to :
 
@@ -38,21 +39,3 @@ TO DO LIST :
  - [x] Right click to delete
  - [ ] Load texture asynchronously
  - [ ] Add full screen
- 
-Technical information
-Left handed cartesian coordinates system
-Clock wise triangle, normal calculated based on this
-
-Vertex order:
- 
-	  1 2
-	1 0 3 2
-	5 4 7 6
-	  5 6
-
-Face order (two triangle by face):
-
-	   1
-	 2 5 4
-	   3
-	   6
